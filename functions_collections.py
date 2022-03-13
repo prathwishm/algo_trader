@@ -1,6 +1,6 @@
 import pandas as pd
 import pandas_ta as ta
-import talib
+#import talib
 import datetime
 from dateutil.tz import tzoffset
 import time
@@ -84,14 +84,14 @@ class Kite_functions():
         return df
 
 
-    def add_indicators(self, df):
-        df['vwap'] = self.get_vwap(df)
-        df["upperband"], df["middleband"], df["lowerband"] = talib.BBANDS(df["close"], timeperiod=10, nbdevup=2, nbdevdn=2, matype=0)
-        df['bb_width_percent'] = (df["upperband"] - df["lowerband"])/ df['close']
-        df['10sma_vol'] = talib.SMA(df['volume'], timeperiod=10)
-        df['240sma'] = talib.SMA(df['close'], timeperiod=240)
-        df.dropna(inplace=True)
-        return df
+    # def add_indicators(self, df):
+    #     df['vwap'] = self.get_vwap(df)
+    #     df["upperband"], df["middleband"], df["lowerband"] = talib.BBANDS(df["close"], timeperiod=10, nbdevup=2, nbdevdn=2, matype=0)
+    #     df['bb_width_percent'] = (df["upperband"] - df["lowerband"])/ df['close']
+    #     df['10sma_vol'] = talib.SMA(df['volume'], timeperiod=10)
+    #     df['240sma'] = talib.SMA(df['close'], timeperiod=240)
+    #     df.dropna(inplace=True)
+    #     return df
 
     @staticmethod
     def convert_tick_data_to_candles(tick_data = [], time_frame='5min'):
@@ -108,13 +108,13 @@ class Kite_functions():
         df_ohlc.index = df_ohlc.index.tz_localize(tz=tzoffset(None, 19800))
         return df_ohlc
 
-    def add_five_min_bb_bull_blast_indicators(self, df):
-        df['vwap'] = self.get_vwap(df)
-        df["upperband"], df["middleband"], df["lowerband"] = talib.BBANDS(df["close"], timeperiod=10, nbdevup=2, nbdevdn=2, matype=0)
-        df['20sma_vol'] = talib.SMA(df['volume'], timeperiod=20)
-        df['200sma'] = talib.SMA(df['close'], timeperiod=200)
-        df.dropna(inplace=True)
-        return df
+    # def add_five_min_bb_bull_blast_indicators(self, df):
+    #     df['vwap'] = self.get_vwap(df)
+    #     df["upperband"], df["middleband"], df["lowerband"] = talib.BBANDS(df["close"], timeperiod=10, nbdevup=2, nbdevdn=2, matype=0)
+    #     df['20sma_vol'] = talib.SMA(df['volume'], timeperiod=20)
+    #     df['200sma'] = talib.SMA(df['close'], timeperiod=200)
+    #     df.dropna(inplace=True)
+    #     return df
 
     def get_options_symbol_and_token(self, name, strike, ce_pe):
         inst = self.instrument_df
