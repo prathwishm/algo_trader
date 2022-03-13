@@ -1,3 +1,4 @@
+import traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -14,6 +15,8 @@ def login_using_selenium():
         options = Options()
         options.add_argument('--headless')
         options.add_argument('--disable-gpu')
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
 
         driver = webdriver.Chrome(service=s, options=options)
         driver.get('https://kite.zerodha.com/')
@@ -59,6 +62,7 @@ def login_using_selenium():
     except Exception as e:
         telegram_bot_sendtext("Error while logging in using Selenium. Error: "+str(e))
         print("Error while logging in using Selenium. Error: "+str(e))
+        traceback.print_exc()
         return False
 
 if __name__ == '__main__':

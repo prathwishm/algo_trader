@@ -85,4 +85,5 @@ while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute
         break
 
 logger.info('Stopping Websocket')
+telegram_bot_sendtext('Algo Shutting down...')
 ticker.kws.stop()

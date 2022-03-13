@@ -1,5 +1,6 @@
 selenium==4.1.0
 webdriver-manager
+kiteconnect==3.9.2
 git+https://gitlab.com/algo2t/kiteext.git
 pandas
 pandas-ta
