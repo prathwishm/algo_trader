@@ -4,3 +4,4 @@ telegram_bot_credentials.txt
 enctoken.txt
 experiments.ipynb
 __pycache__
+*.log

@@ -1,14 +1,19 @@
-import datetime
+from update_ticks_using_celery import insert_ticks, add_ticker_tokens
+from telegram_bot import telegram_bot_sendtext
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler('ticker_error.log')
+file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s'))
+logger.addHandler(file_handler)
 
 class Ticker_class():
     """
     Class to consume tick by tick data.
-    Stores the latest price and volume in ticker_dict.
-    Stores the latest depth in depth_dict.
-    The key for ticker_dict and depth_dict are instrument token.
+    Stores the latest price, volume and depth in redis.
 
-    microsecond is added to "last_trade_time" to ensure that mutiple ticks
-    having same timestamp are handled.
+    microsecond should be added to "last_trade_time" to ensure that mutiple ticks
+    having same timestamp are handled while converting tick data to candles.
 
     latest tick data is compared with last stored tick data of that instrument to prevent duplicate ticks
     """
@@ -16,89 +21,63 @@ class Ticker_class():
     def __init__(self, kite, tokens):
         self.kite = kite
         self.tokens = tokens
-        self.ticker_dict = {}
-        self.depth_dict = {}
-        self.subscribe_list = []
-        self.subscribe_new_tokens = False
-        self.unsubscribe_list = []
-        self.unsubscribe_from_token = False
-        self.stop_ticker = False
-        self.counter = 1
-
+        self.websocket_is_open = False
 
     def start_ticker(self):
-        if len(self.tokens) == 0:
-            print("No Tokens found for ticker service")
-            return None
 
-        for each_token in self.tokens:
-            self.ticker_dict[each_token] = []
-            self.depth_dict[each_token] = {}
+        add_ticker_tokens(self.tokens)
  
         def on_ticks(ws,ticks):
-            for tick in ticks:
-                ticker_token = tick['instrument_token']
-
-                try:
-                    if not (self.ticker_dict[ticker_token][-1][-1] == tick['volume'] and self.ticker_dict[ticker_token][-1][-2] == tick['last_price']):
-                        ts = tick['timestamp'] + datetime.timedelta(microseconds=self.counter)
-                        vals = [ts, tick['last_price'], tick['volume']]
-                        self.ticker_dict[ticker_token].append(vals)
-                        self.depth_dict[ticker_token] = tick['depth']
-
-                except IndexError:
-                    print(ticker_token, "not in dict.")
-                    if (tick['timestamp'].hour >= 9 and tick['timestamp'].minute >= 15) or tick['timestamp'].hour >= 10:
-                        ts = tick['timestamp'] + datetime.timedelta(microseconds=self.counter)
-                        vals = [ts, tick['last_price'], tick['volume']]
-                        self.ticker_dict[ticker_token].append(vals)
-
-                except KeyError as key:
-                    print("Unexpected  KeyError in ticker")
-                    self.ticker_dict[ticker_token] = []
-
-                except Exception as e:
-                    print("Unexpected error in ticker. Error: "+str(e))
-
-                self.counter +=1
-                if self.counter >= 999998:
-                    self.counter = 1
-
-            # Subscribe to new Tokens dynamically
-            if self.subscribe_new_tokens:
-                self.subscribe_new_tokens = True
-                if len(self.subscribe_list) > 0:
-                    ws.subscribe(self.subscribe_list)
-                    ws.set_mode(ws.MODE_FULL,self.subscribe_list)
-                    ticker_dict_keys = list(self.ticker_dict.keys())
-                    for each_token in self.subscribe_list:
-                        if each_token not in ticker_dict_keys:
-                            self.ticker_dict[each_token] = []
-                            self.depth_dict[each_token] = {}
-                self.subscribe_list = []
-                
-
-            # Unsubscribe from Tokens dynamically
-            if self.unsubscribe_from_token:
-                self.unsubscribe_from_token = False
-                if len(self.unsubscribe_list) > 0:
-                    ws.unsubscribe(self.unsubscribe_list)
-                    self.unsubscribe_list = []
-
-            if self.stop_ticker:
-                print("Stopping ticker")
-                kws.close()
+            insert_ticks.delay(ticks)
 
         def on_connect(ws,response):
+            self.websocket_is_open = True
             ws.subscribe(self.tokens)
             ws.set_mode(ws.MODE_FULL,self.tokens)
+            logger.info(f"Successfully connected. Response: {response}")
+            telegram_bot_sendtext('Successfully Connected to Websocket')
+            
+        def on_close(ws, code, reason):
+            self.websocket_is_open = False
+            logger.info(f'Closing Websocket. The code is {code} . Reason is {reason}')
+            telegram_bot_sendtext(f'Closing Websocket. The code is {code} . Reason is {reason}')
 
-        def on_close(ws, code, reason): 
-            ws.stop()
+        def on_error(ws, code, reason):
+            logger.error(f'Error in websocket. Error code is {code} . Reason is {reason}')
+            telegram_bot_sendtext(f'Error in websocket. Error code is {code} . Reason is {reason}')
 
-        kws = self.kite.ticker()
+        def on_reconnect(ws, attempts_count):
+            logger.info(f"Reconnecting: {attempts_count}")
 
-        kws.on_ticks = on_ticks
-        kws.on_connect = on_connect
-        kws.on_close = on_close
-        kws.connect(threaded=True)
+        def on_noreconnect(ws):
+            logger.info("Reconnect failed.")
+
+        self.kws = self.kite.ticker()
+        self.kws.on_ticks = on_ticks
+        self.kws.on_connect = on_connect
+        self.kws.on_close = on_close
+        self.kws.on_error = on_error
+        self.kws.on_reconnect = on_reconnect
+        self.kws.on_noreconnect = on_noreconnect
+        self.kws.connect(threaded=True)
+
+    def subscribe_tokens(self, tokens_list):
+        if type(tokens_list) == list and len(tokens_list) > 0:
+            add_ticker_tokens(tokens_list)
+            for each_token in tokens_list:
+                if each_token not in self.tokens:
+                    self.tokens.append(each_token)
+
+            self.kws.subscribe(self.tokens)
+            self.kws.set_mode(self.kws.MODE_FULL,self.tokens)
+            logger.info(f"Subscribing to new tokens. The tokens are: {self.tokens}")
+
+    def unsubscribe_tokens(self, tokens_list):
+        if type(tokens_list) == list and len(tokens_list) > 0:
+            for each_token in tokens_list:
+                if each_token in self.tokens:
+                    self.tokens.remove(each_token)
+
+            self.kws.unsubscribe(tokens_list)
+            logger.info(f"Unsubscribing from tokens: {tokens_list}")
+        
