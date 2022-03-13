@@ -3,6 +3,6 @@ webdriver-manager
 git+https://gitlab.com/algo2t/kiteext.git
 pandas
 pandas-ta
-TA-Lib
+#TA-Lib
 celery
 redis
