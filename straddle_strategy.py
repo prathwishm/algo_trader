@@ -57,9 +57,10 @@ class straddles:
             symbol_ce, bnf_token_ce = kite_func.get_options_symbol_and_token('BANKNIFTY', bnf_strike, 'CE')
             symbol_pe, bnf_token_pe = kite_func.get_options_symbol_and_token('BANKNIFTY', bnf_strike, 'PE')
             self.nf_bnf_option_tokens.extend([nf_token_ce, nf_token_pe, bnf_token_ce, bnf_token_pe])
-        print(self.nf_bnf_option_tokens)
+        #print(self.nf_bnf_option_tokens)
 
     def short_bnf_straddle(self, qty, sl_type):
+        print('Placing BNF straddle')
         try:
             banknifty_ltp = self.kite.ltp('NSE:NIFTY BANK')['NSE:NIFTY BANK']['last_price']
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
@@ -152,19 +153,19 @@ class straddles:
     def main(self):
         current_dt = datetime.datetime.now()
 
-        if not self.placed_bnf_9_45_straddle and current_dt.hour == 9 and current_dt.minute >=45:
+        if not self.placed_bnf_9_45_straddle and current_dt.hour == 9 and current_dt.minute >=19:
             self.placed_bnf_9_45_straddle = True
-            self.short_bnf_straddle(25, 'point_based')
+            self.short_bnf_straddle(25, 'percent_based')
 
-        if not self.placed_nf_10_45_straddle and current_dt.hour == 10 and current_dt.minute >=45:
+        if not self.placed_nf_10_45_straddle and current_dt.hour == 10 and current_dt.minute >=44:
             self.placed_nf_10_45_straddle = True
             self.short_nifty_straddle(50)
 
-        if not self.placed_bnf_11_15_straddle and current_dt.hour == 11 and current_dt.minute >=15:
+        if not self.placed_bnf_11_15_straddle and current_dt.hour == 11 and current_dt.minute >=44:
             self.placed_bnf_11_15_straddle = True
             self.short_bnf_straddle(25, 'percent_based')
         
-        if not self.exit_procedure_done and current_dt.hour == 15 and current_dt.minute >=10:
+        if not self.exit_procedure_done and current_dt.hour == 15 and current_dt.minute >=9:
             self.exit_procedure_done = True
             for each_order in self.kite.orders():
                 if each_order['order_id'] in self.sl_order_id_list:

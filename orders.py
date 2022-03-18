@@ -1,5 +1,6 @@
 import time
 from convert_float_to_tick_price import convert_to_tick_price
+from telegram_bot import telegram_bot_sendtext
 import logging
 
 logger = logging.getLogger(__name__)
@@ -36,10 +37,10 @@ class Class_Orders:
             if type(depth) == dict:
 
                 if buy_sell == "buy":
-                    price = depth['sell'][1]['price']
+                    price = convert_to_tick_price(depth['sell'][1]['price'] + (0.02 * depth['sell'][1]['price']) )
                         
                 elif buy_sell == "sell":
-                    price = depth['buy'][1]['price']
+                    price = convert_to_tick_price(depth['buy'][1]['price'] - (0.02 * depth['buy'][1]['price']) )
                 
                 placed_order_id = kite.place_order(tradingsymbol=symbol,
                                             exchange=kite.EXCHANGE_NFO,
@@ -58,11 +59,12 @@ class Class_Orders:
                                             order_type=kite.ORDER_TYPE_MARKET,
                                             product=kite.PRODUCT_MIS,
                                             variety=kite.VARIETY_REGULAR)
-
+            #telegram_bot_sendtext(f'Placed {quantity} quantity {buy_sell} order for {symbol}')
             return placed_order_id
 
         except Exception as e:
             logger.exception(f"Error while placing market order for {symbol}. Error: "+ str(e))
+            telegram_bot_sendtext(f'Error while placing {quantity} quantity {buy_sell} order for {symbol}. Error: '+str(e))
             return -1
 
     def place_sl_order_for_options(self, symbol, buy_sell, trigger_price, price, quantity):
@@ -88,10 +90,11 @@ class Class_Orders:
                                         trigger_price = trigger_price,
                                         product=kite.PRODUCT_MIS,
                                         variety=kite.VARIETY_REGULAR)
-
+            #telegram_bot_sendtext(f'Placed {quantity} quantity {buy_sell} STOPLOSS order for {symbol}. Trigger price is {trigger_price}')
             return sl_order_id
         except Exception as e:
             logger.exception(f"Error while placing SL order for {symbol}. Error: "+ str(e))
+            telegram_bot_sendtext(f'Error while placing {quantity} quantity {buy_sell} STOPLOSS order for {symbol}. Trigger price is {trigger_price}. Error: '+str(e))
             return -1
 
 

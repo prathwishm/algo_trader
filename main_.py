@@ -36,14 +36,14 @@ else:
     telegram_bot_sendtext("Logging in using Kiteext")
     kite.login_with_credentials(userid=kite_username, password=kite_password, pin=kite_pin)
 
-ticker = Ticker_class(kite=kite, tokens = [])
+ticker = Ticker_class(kite=kite, tokens = [256265, 260105])
 kite_func = Kite_functions(kite)
 orders_obj = Class_Orders(kite = kite, redis_obj = redis_obj, kite_functions = kite_func)
 
 #straddles_obj = straddles(kite=kite, kite_func= kite_func, orders_obj = orders_obj, margin=1)
 straddles_obj = straddles(kite=kite, kite_func= kite_func, orders_obj = orders_obj, redis_obj = redis_obj, ticker = ticker, margin=1)
 
-ticker.tokens = straddles_obj.nf_bnf_option_tokens
+#ticker.tokens = straddles_obj.nf_bnf_option_tokens
 ticker.start_ticker()
 
 current_dt = datetime.datetime.now()
@@ -77,7 +77,7 @@ while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute
         logger.exception("Unexpected error in main while loop. Error: "+str(e))
         traceback.print_exc()
         error_count += 1
-        if error_count >100:
+        if error_count >10:
             break
 
     except KeyboardInterrupt:

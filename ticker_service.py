@@ -1,4 +1,4 @@
-from update_ticks_using_celery import insert_ticks, add_ticker_tokens
+from update_ticks_using_celery import insert_ticks, add_ticker_tokens, insert_ticks2
 from telegram_bot import telegram_bot_sendtext
 import logging
 logger = logging.getLogger(__name__)
@@ -28,7 +28,9 @@ class Ticker_class():
         add_ticker_tokens(self.tokens)
  
         def on_ticks(ws,ticks):
-            insert_ticks.delay(ticks)
+            #insert_ticks.delay(ticks)
+            insert_ticks2(ticks)
+            #print(ticks)
 
         def on_connect(ws,response):
             self.websocket_is_open = True

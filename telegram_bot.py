@@ -1,5 +1,6 @@
 import requests
 from urllib.parse import quote
+from threading import Thread
 
 with open('telegram_bot_credentials.txt', 'r') as credentials:
     lines = credentials.readlines()
@@ -8,7 +9,7 @@ with open('telegram_bot_credentials.txt', 'r') as credentials:
     #print(bot_token, bot_chatID)
 
 
-def telegram_bot_sendtext(bot_message_in):
+def telegram_bot_sendtext_main(bot_message_in):
     try:
         #bot_message = bot_message_in.replace("&", " ").replace("_", " ").replace("@", " ").replace("'", " ").replace("[", " ")
         bot_message = quote(str(bot_message_in))
@@ -29,6 +30,10 @@ def telegram_bot_sendtext(bot_message_in):
     except Exception as e:
         print("Error while Sending telegram message. Error: "+str(e))
         return None
+
+def telegram_bot_sendtext(bot_message_in):
+    x = Thread(target = telegram_bot_sendtext_main, args = [bot_message_in])
+    x.start()
 
 if __name__ == "__main__":
     test = telegram_bot_sendtext("Testing the telegram bot...")

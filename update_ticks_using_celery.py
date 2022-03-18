@@ -1,6 +1,7 @@
 from telegram_bot import telegram_bot_sendtext
 from celery import Celery
 from redis import Redis
+from threading import Thread
 import logging
 import datetime
 logger = logging.getLogger(__name__)
@@ -27,7 +28,10 @@ def insert_ticks(ticks):
         for tick in ticks:
             ticker_token = tick['instrument_token']
             try:
-                if not (ticker_dict[ticker_token][-1] == tick['volume'] and ticker_dict[ticker_token][-2] == tick['last_price']):
+                #print(tick)
+                if ticker_token in [256265, 260105]:
+                    r.set(ticker_token, tick['last_price'])
+                elif not (ticker_dict[ticker_token][-1] == tick['volume'] and ticker_dict[ticker_token][-2] == tick['last_price']):
                     if type(tick['last_trade_time']) == str:
                         tick['last_trade_time'] = datetime.datetime.strptime(tick['last_trade_time'], '%Y-%m-%dT%H:%M:%S')
                     vals = [tick['last_trade_time'], tick['last_price'], tick['volume']]
@@ -61,4 +65,8 @@ def insert_ticks(ticks):
         logger.exception("Unexpected error in ticker. Error: "+str(e))
         telegram_bot_sendtext("Unexpected error in ticker. Error: "+str(e))
 
+
+def insert_ticks2(ticks):
+    x = Thread(target = insert_ticks, args = [ticks])
+    x.start()
         

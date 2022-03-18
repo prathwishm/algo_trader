@@ -3,6 +3,7 @@ import pandas as pd
 import traceback
 import time
 from convert_float_to_tick_price import convert_to_tick_price
+from telegram_bot import telegram_bot_sendtext
 
 def get_nifty_atm_strike(ltp):
     diff = ltp % 50
@@ -74,7 +75,7 @@ class straddles:
     def short_bnf_straddle(self, qty, sl_type):
         try:
             #banknifty_ltp = self.kite.ltp('NSE:NIFTY BANK')['NSE:NIFTY BANK']['last_price']
-            banknifty_ltp = eval(self.redis.get(self.bank_nifty_token))
+            banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
             bnf_symbol_ce, bnf_token_ce = self.kite_functions.get_options_symbol_and_token('BANKNIFTY', bnf_atm_strike, 'CE')
             bnf_symbol_pe, bnf_token_pe = self.kite_functions.get_options_symbol_and_token('BANKNIFTY', bnf_atm_strike, 'PE')
@@ -122,7 +123,7 @@ class straddles:
     def short_nifty_straddle(self, qty):
         try:
             #nifty_ltp = self.kite.ltp('NSE:NIFTY 50')['NSE:NIFTY 50']['last_price']
-            nifty_ltp = eval(self.redis.get(self.nifty_token))
+            nifty_ltp = eval(self.redis.get(str(self.nifty_token)))
             nf_atm_strike = get_nifty_atm_strike(nifty_ltp)
             self.add_straddle_to_websocket(nf_atm_strike, index = 'NIFTY')
             nf_symbol_ce, nf_token_ce = self.kite_functions.get_options_symbol_and_token('NIFTY', nf_atm_strike, 'CE')
@@ -137,7 +138,7 @@ class straddles:
                     if each_order['status'] == 'COMPLETE':
                         avg_sell_price = each_order['average_price']
                         trigger_price_nf = convert_to_tick_price(avg_sell_price + (avg_sell_price * .4))
-                        print("Placing CE Sl order for BNF at", trigger_price_nf)
+                        print("Placing CE Sl order for NF at", trigger_price_nf)
 
                         ce_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=nf_symbol_ce, buy_sell="buy", trigger_price= trigger_price_nf, price = trigger_price_nf + 20, quantity=qty)
                         if ce_sl_order_id!= -1:
@@ -151,7 +152,7 @@ class straddles:
                     if each_order['status'] == 'COMPLETE':
                         avg_sell_price = each_order['average_price']
                         trigger_price_nf = convert_to_tick_price(avg_sell_price + (avg_sell_price * .4))
-                        print("Placing PE Sl order for BNF at", trigger_price_nf)
+                        print("Placing PE Sl order for NF at", trigger_price_nf)
                         pe_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=nf_symbol_pe, buy_sell="buy", trigger_price= trigger_price_nf, price = trigger_price_nf + 20, quantity=qty)
                         if pe_sl_order_id!= -1:
                             self.sl_order_id_list.append(pe_sl_order_id)
@@ -167,7 +168,8 @@ class straddles:
     def main(self):
         current_dt = datetime.datetime.now()
 
-        self.short_options_on_trigger()
+        if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 40):
+            self.short_options_on_trigger()
 
         if not self.placed_bnf_9_20_straddle and current_dt.hour == 9 and (current_dt.minute >=20 or (current_dt.minute >=19 and current_dt.second >=54)):
             self.placed_bnf_9_20_straddle = True
@@ -237,26 +239,27 @@ class straddles:
                 self.nf_bnf_option_tokens.extend([token_ce, token_pe])
 
         if len(tokens_list) > 0:
+            print(f'ADDING {tokens_list} to websocket')
             self.ticker.subscribe_tokens(tokens_list)
-            time.sleep(1)
+            time.sleep(5)
 
 
     def add_bnf_straddle_to_watchlist(self, strategy, qty):
         try:
             #banknifty_ltp = self.kite.ltp('NSE:NIFTY BANK')['NSE:NIFTY BANK']['last_price']
-            banknifty_ltp = eval(self.redis.get(self.bank_nifty_token))
+            banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
             self.add_straddle_to_websocket(bnf_atm_strike, index = 'BANKNIFTY')
-            banknifty_ltp = eval(self.redis.get(self.bank_nifty_token))
+            banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
             bnf_symbol_ce, bnf_token_ce = self.kite_functions.get_options_symbol_and_token('BANKNIFTY', bnf_atm_strike, 'CE')
             bnf_symbol_pe, bnf_token_pe = self.kite_functions.get_options_symbol_and_token('BANKNIFTY', bnf_atm_strike, 'PE')
 
             #ltp_ce = self.ticker.ticker_dict[bnf_token_ce][-1][1]
-            ltp_ce = eval(self.redis.get(bnf_token_ce))
+            ltp_ce = eval(self.redis.get(str(bnf_token_ce)))
             ce_trigger_price = convert_to_tick_price(ltp_ce + (ltp_ce * .2))
             #ltp_pe = self.ticker.ticker_dict[bnf_token_pe][-1][1]
-            ltp_pe = eval(self.redis.get(bnf_token_pe))
+            ltp_pe = eval(self.redis.get(str(bnf_token_pe)))
             pe_trigger_price = convert_to_tick_price(ltp_pe + (ltp_pe * .2))
             self.watchlist[strategy + 'ce'] = {'token': bnf_token_ce,'symbol': bnf_symbol_ce,'price': ltp_ce, 'trigger_price': ce_trigger_price,
                                             'datetime': datetime.datetime.now(), 'opposite_key':strategy + 'pe', 'quantity':qty}
@@ -279,16 +282,17 @@ class straddles:
                     #self.watchlist.pop(strategy_option)
                     list_of_tokens_to_pop_from_watchlist.append(strategy_option)
                     opposite_key = values_dict['opposite_key']
+                    list_of_tokens_to_pop_from_watchlist.append(opposite_key)
                     symbol = self.watchlist[opposite_key]['symbol']
                     if '9' in strategy_option:
-                        sl_price = min(self.watchlist[opposite_key]['trigger_price'], values_dict['trigger_price']+80)
+                        sl_price = min(self.watchlist[opposite_key]['trigger_price'], tick_list[1]+80)
                     else:
-                        sl_price = min(self.watchlist[opposite_key]['trigger_price'], values_dict['trigger_price']+120)
+                        sl_price = min(self.watchlist[opposite_key]['trigger_price'], tick_list[1]+120)
                     qty = self.watchlist[opposite_key]['quantity']
-                    self.short_option_and_place_sl(self, symbol=symbol, sl_price=sl_price, qty=qty, dt = values_dict['datetime'])
+                    self.short_option_and_place_sl(symbol=symbol, sl_price=sl_price, qty=qty, dt = values_dict['datetime'])
 
                     #self.watchlist.pop(opposite_key)
-                    list_of_tokens_to_pop_from_watchlist.append(opposite_key)
+                    #list_of_tokens_to_pop_from_watchlist.append(opposite_key)
                     #place orders
                     
                     break
@@ -306,10 +310,10 @@ class straddles:
             order_id = self.orders_obj.place_market_order(symbol = symbol, buy_sell= "sell", quantity=qty)
             self.traded_symbols_list.append(symbol)
             strategy_entry_hour = None
-            if dt.hour() == 9:
+            if dt.hour == 9:
                 self.bnf_920_dict[symbol] = None
                 strategy_entry_hour = 9
-            elif dt.hour() == 11:
+            elif dt.hour == 11:
                 self.bnf_11_45_dict[symbol] = None
                 strategy_entry_hour = 11
             time.sleep(1)
@@ -320,7 +324,7 @@ class straddles:
                         avg_sell_price = each_order['average_price']
                         print(f"Placing Sl order for {symbol} at {sl_price}")
 
-                        sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=order_id, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty)
+                        sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty)
                         if sl_order_id!= -1:
                             self.sl_order_id_list.append(sl_order_id)
                             if strategy_entry_hour == 9:
