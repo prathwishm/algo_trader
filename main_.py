@@ -6,9 +6,9 @@ from functions_collections import Kite_functions
 from config import kite_username, kite_password, kite_pin
 from kite_ext_new import KiteExt_new
 from redis import Redis
-import datetime
-import time
+import datetime, pytz, time, os
 import traceback
+import subprocess
 from straddle_strategy2 import straddles
 import logging
 
@@ -19,14 +19,19 @@ file_handler = logging.FileHandler('main.log')
 file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s'))
 logger.addHandler(file_handler)
 
+redis_server = subprocess.Popen('redis-server')
 redis_obj = Redis(host='127.0.0.1', port=6379, decode_responses=True)
 telegram_bot_sendtext('Starting Algo...')
 
 kite = KiteExt_new()
 
-selenium_login_status = login_using_selenium()
+#selenium_login_status = login_using_selenium()
 
-if selenium_login_status:
+enctoken_modification_time = os.path.getmtime('enctoken.txt')
+# Converting the time in seconds to a timestamp
+enctoken_modification_time_stamp = time.ctime(enctoken_modification_time)
+
+if int(enctoken_modification_time_stamp[8:10]) == datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata')).day:
     with open('enctoken.txt', 'r') as enctoken_file:
         enctoken = enctoken_file.read()
         kite.login_using_enctoken(kite_username, enctoken, None)
@@ -46,11 +51,11 @@ straddles_obj = straddles(kite=kite, kite_func= kite_func, orders_obj = orders_o
 #ticker.tokens = straddles_obj.nf_bnf_option_tokens
 ticker.start_ticker()
 
-current_dt = datetime.datetime.now()
+current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
 error_count = 0
 while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute >= 30):
     try:
-        current_dt = datetime.datetime.now()
+        current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
         if current_dt.hour == 15 and current_dt.minute >= 11:
             #Exit from all open positions at 3:15.
             # kite_day_positions_list = kite_func.get_positions_list()['net']
@@ -87,3 +92,4 @@ while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute
 logger.info('Stopping Websocket')
 telegram_bot_sendtext('Algo Shutting down...')
 ticker.kws.stop()
+redis_server.kill()

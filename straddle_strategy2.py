@@ -1,4 +1,5 @@
 import datetime
+import pytz
 import pandas as pd
 import traceback
 import time
@@ -166,7 +167,7 @@ class straddles:
 
     
     def main(self):
-        current_dt = datetime.datetime.now()
+        current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
 
         if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 40):
             self.short_options_on_trigger()
@@ -262,9 +263,9 @@ class straddles:
             ltp_pe = eval(self.redis.get(str(bnf_token_pe)))
             pe_trigger_price = convert_to_tick_price(ltp_pe + (ltp_pe * .2))
             self.watchlist[strategy + 'ce'] = {'token': bnf_token_ce,'symbol': bnf_symbol_ce,'price': ltp_ce, 'trigger_price': ce_trigger_price,
-                                            'datetime': datetime.datetime.now(), 'opposite_key':strategy + 'pe', 'quantity':qty}
+                                            'datetime': datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata')), 'opposite_key':strategy + 'pe', 'quantity':qty}
             self.watchlist[strategy + 'pe'] = {'token': bnf_token_pe,'symbol': bnf_symbol_pe,'price': ltp_pe, 'trigger_price': pe_trigger_price,
-                                            'datetime': datetime.datetime.now(), 'opposite_key':strategy + 'ce', 'quantity':qty}
+                                            'datetime': datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata')), 'opposite_key':strategy + 'ce', 'quantity':qty}
 
         except Exception as e:
             print("Unexpected error in add_bnf_straddle_to_watchlist. Error: "+str(e))

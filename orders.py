@@ -59,7 +59,7 @@ class Class_Orders:
                                             order_type=kite.ORDER_TYPE_MARKET,
                                             product=kite.PRODUCT_MIS,
                                             variety=kite.VARIETY_REGULAR)
-            #telegram_bot_sendtext(f'Placed {quantity} quantity {buy_sell} order for {symbol}')
+            telegram_bot_sendtext(f'Placed {quantity} quantity {buy_sell} order for {symbol}')
             return placed_order_id
 
         except Exception as e:
@@ -90,7 +90,7 @@ class Class_Orders:
                                         trigger_price = trigger_price,
                                         product=kite.PRODUCT_MIS,
                                         variety=kite.VARIETY_REGULAR)
-            #telegram_bot_sendtext(f'Placed {quantity} quantity {buy_sell} STOPLOSS order for {symbol}. Trigger price is {trigger_price}')
+            telegram_bot_sendtext(f'Placed {quantity} quantity {buy_sell} STOPLOSS order for {symbol}. Trigger price is {trigger_price}')
             return sl_order_id
         except Exception as e:
             logger.exception(f"Error while placing SL order for {symbol}. Error: "+ str(e))

@@ -2,6 +2,7 @@ import pandas as pd
 import pandas_ta as ta
 #import talib
 import datetime
+import pytz
 from dateutil.tz import tzoffset
 import time
 
@@ -76,7 +77,7 @@ class Kite_functions():
     def data_downloader(self, name, interval, delta):
         #token = self.kite.ltp(name)[name]['instrument_token']
         token = self.get_symbol_token(name)
-        to_date = datetime.datetime.now().date()
+        to_date = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata')).date()
         from_date = to_date - datetime.timedelta(days = delta)
         data = self.kite.historical_data(instrument_token = token , from_date = from_date, to_date = to_date, interval = interval , continuous=False, oi=False)
         df = pd.DataFrame(data)
