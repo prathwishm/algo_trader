@@ -70,3 +70,14 @@ def insert_ticks2(ticks):
     x = Thread(target = insert_ticks, args = [ticks])
     x.start()
         
+if __name__ == '__main__':
+    from subprocess import Popen
+    import time
+
+    redis_server = Popen('redis-server')
+    time.sleep(1)
+    ticks = [{'instrument_token': 256265,'last_price': 17.45,},
+            {'instrument_token': 260105,'last_price': 37.45,}]
+    insert_ticks2(ticks)
+    print("Data inserted into redis successfully")
+    redis_server.kill()
