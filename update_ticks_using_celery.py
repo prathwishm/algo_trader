@@ -10,9 +10,9 @@ file_handler = logging.FileHandler('ticker_error_celery.log')
 file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s'))
 logger.addHandler(file_handler)
 
-app = Celery('tasks', broker='redis://127.0.0.1:6379/0', backend='redis://127.0.0.1:6379/1')
+app = Celery('tasks', broker='redis://127.0.0.1:6380/0', backend='redis://127.0.0.1:6380/1')
 
-r = Redis(host='127.0.0.1', port=6379, decode_responses=True)
+r = Redis(host='localhost', port=6380, decode_responses=True)
 
 ticker_dict = {}
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     from subprocess import Popen
     import time
 
-    redis_server = Popen('redis-server')
+    redis_server = Popen('redis-server --port 6380', shell=True)
     time.sleep(1)
     ticks = [{'instrument_token': 256265,'last_price': 17.45,},
             {'instrument_token': 260105,'last_price': 37.45,}]

@@ -19,8 +19,8 @@ file_handler = logging.FileHandler('main.log')
 file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s'))
 logger.addHandler(file_handler)
 
-#redis_server = subprocess.Popen('redis-server')
-redis_obj = Redis(host='127.0.0.1', port=6379, decode_responses=True)
+redis_server = subprocess.Popen('redis-server --port 6380', shell=True)
+redis_obj = Redis(host='localhost', port=6380, decode_responses=True)
 telegram_bot_sendtext('Starting Algo...')
 
 kite = KiteExt_new()
@@ -92,4 +92,4 @@ while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute
 logger.info('Stopping Websocket')
 telegram_bot_sendtext('Algo Shutting down...')
 ticker.kws.stop()
-#redis_server.kill()
+redis_server.kill()

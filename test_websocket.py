@@ -6,7 +6,7 @@ from ticker_service import Ticker_class
 from redis import Redis
 from subprocess import Popen
 
-redis_server = Popen('redis-server')
+redis_server = Popen('redis-server --port 6380', shell=True)
 time.sleep(1)
 
 kite = KiteExt_new()
@@ -33,7 +33,7 @@ ticker = Ticker_class(kite=kite, tokens = [256265, 260105])
 ticker.start_ticker()
 time.sleep(5)
 
-redis_obj = Redis(host='127.0.0.1', port=6379, decode_responses=True)
+redis_obj = Redis(host='localhost', port=6380, decode_responses=True)
 
 for i in range(5):
     banknifty_ltp = eval(redis_obj.get(str(260105)))
