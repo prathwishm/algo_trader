@@ -3,11 +3,11 @@ from config import kite_username, kite_password, kite_pin
 from telegram_bot import telegram_bot_sendtext
 import datetime, pytz, time, os
 from ticker_service import Ticker_class
-from redis import Redis
-from subprocess import Popen
+#from redis import Redis
+# from subprocess import Popen
 
-redis_server = Popen('redis-server --port 6380', shell=True)
-time.sleep(1)
+# redis_server = Popen('redis-server --port 6380', shell=True)
+# time.sleep(1)
 
 kite = KiteExt_new()
 
@@ -33,12 +33,14 @@ ticker = Ticker_class(kite=kite, tokens = [256265, 260105])
 ticker.start_ticker()
 time.sleep(5)
 
-redis_obj = Redis(host='localhost', port=6380, decode_responses=True)
+#redis_obj = Redis(host='localhost', port=6380, decode_responses=True)
 
 for i in range(5):
-    banknifty_ltp = eval(redis_obj.get(str(260105)))
-    nifty_ltp = eval(redis_obj.get(str(256265)))
+    #banknifty_ltp = eval(redis_obj.get(str(260105)))
+    banknifty_ltp = ticker.ltp_dict[260105]
+    #nifty_ltp = eval(redis_obj.get(str(256265)))
+    nifty_ltp = ticker.ltp_dict[256265]
     print(f"Nifty {nifty_ltp} \nBanknifty {banknifty_ltp}")
     time.sleep(1)
 
-redis_server.kill()
+# redis_server.kill()

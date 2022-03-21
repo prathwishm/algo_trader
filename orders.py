@@ -11,10 +11,10 @@ file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:
 logger.addHandler(file_handler)
 
 class Class_Orders:
-    def __init__(self, kite, redis_obj, kite_functions):
+    def __init__(self, kite, ticker, kite_functions):
         self.kite = kite
         self.order_id_dict = {}
-        self.redis = redis_obj
+        self.ticker = ticker
         self.kite_functions = kite_functions
 
     def place_market_order(self, symbol, buy_sell, quantity):
@@ -31,7 +31,8 @@ class Class_Orders:
             
             token = self.kite_functions.get_symbol_token(symbol)
 
-            depth = eval(self.redis.get(str(token)+'_depth'))
+            #depth = eval(self.redis.get(str(token)+'_depth'))
+            depth = self.ticker.depth_dict[token]
 
             # IF websocket is working use market depth to place limit order. Else place market order.
             if type(depth) == dict:
@@ -163,7 +164,8 @@ class Class_Orders:
 
             token = self.kite_functions.get_symbol_token(symbol)
 
-            depth  = eval(self.redis.get(str(token)+'_depth'))
+            #depth  = eval(self.redis.get(str(token)+'_depth'))
+            depth = self.ticker.depth_dict[token]
 
             if buy_sell == "buy":
                 t_type=kite.TRANSACTION_TYPE_BUY
