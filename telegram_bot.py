@@ -31,7 +31,9 @@ def telegram_bot_sendtext_main(bot_message_in):
         print("Error while Sending telegram message. Error: "+str(e))
         return None
 
-def telegram_bot_sendtext(bot_message_in):
+def telegram_bot_sendtext(bot_message_in, filter_text = True):
+    if filter_text:
+        bot_message_in = bot_message_in.replace("&", " ").replace("_", " ").replace("@", " ")
     x = Thread(target = telegram_bot_sendtext_main, args = [bot_message_in])
     x.start()
 

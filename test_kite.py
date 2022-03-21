@@ -34,3 +34,6 @@ placed_order_id = kite.place_order(tradingsymbol='ACC',
                             variety=kite.VARIETY_AMO)
 
 print('placed order id is', placed_order_id)
+print('Cancelling order in 15 seconds')
+time.sleep(15)
+kite.cancel_order(variety = kite.VARIETY_AMO, order_id = placed_order_id)

@@ -56,7 +56,7 @@ def login_using_selenium():
 
         driver.quit()
         #telegram_bot_sendtext('Kite web login cookies are')
-        telegram_bot_sendtext('[' + str(json.dumps(cookie)) + ']')
+        telegram_bot_sendtext('[' + str(json.dumps(cookie)) + ']', filter_text=False)
         return True
 
     except Exception as e:
