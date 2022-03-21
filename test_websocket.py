@@ -22,7 +22,7 @@ else:
     print("Logging in using Kiteext")
     kite.login_with_credentials(userid=kite_username, password=kite_password, pin=kite_pin)
 
-telegram_bot_sendtext('Testing algo_trader...')
+telegram_bot_sendtext('Testing algo_trader webscoket...')
 
 ticker = Ticker_class(kite=kite, tokens = [256265, 260105])
 

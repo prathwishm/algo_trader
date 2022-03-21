@@ -33,6 +33,7 @@ def login_using_selenium():
         #click on Login
         driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div[1]/div/div/div/form/div[4]/button').click()
 
+        time.sleep(2)
         #Find input to enter Pin
         pin = driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div[1]/div/div/div/form/div[2]/div/input')
 
