@@ -4,6 +4,10 @@ from telegram_bot import telegram_bot_sendtext
 import datetime, pytz, time, os
 from ticker_service import Ticker_class
 from redis import Redis
+from subprocess import Popen
+
+redis_server = Popen('redis-server')
+time.sleep(1)
 
 kite = KiteExt_new()
 
@@ -36,3 +40,5 @@ for i in range(5):
     nifty_ltp = eval(redis_obj.get(str(256265)))
     print(f"Nifty {nifty_ltp} \nBanknifty {banknifty_ltp}")
     time.sleep(1)
+
+redis_server.kill()
