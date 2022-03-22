@@ -20,8 +20,8 @@ file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:
 logger.addHandler(file_handler)
 
 holidays = ["2022-01-26", "2022-03-1", "2022-03-18", "2022-04-14", "2022-04-15", "2022-05-03", "2022-08-09", "2022-08-15", "2022-08-31", "2022-10-05", "2022-10-24", "2022-10-26", "2022-11-08"]
-
-if str(datetime.date.today()) in holidays:
+#If today is a holiday or Saturday/Sunday quit
+if str(datetime.date.today()) in holidays or datetime.date.today().isoweekday() > 5:
     telegram_bot_sendtext('Today is a trading holiday. Exiting...')
     quit()
 
@@ -31,7 +31,7 @@ telegram_bot_sendtext('Starting Algo...')
 
 kite = KiteExt_new()
 
-#selenium_login_status = login_using_selenium()
+selenium_login_status = login_using_selenium()
 
 enctoken_modification_time = os.path.getmtime('enctoken.txt')
 # Converting the time in seconds to a timestamp
