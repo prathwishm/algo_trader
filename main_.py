@@ -5,7 +5,7 @@ from orders import Class_Orders
 from functions_collections import Kite_functions
 from config import kite_username, kite_password, kite_pin
 from kite_ext_new import KiteExt_new
-#from redis import Redis
+from redis import Redis
 import datetime, pytz, time, os
 import traceback
 import subprocess
@@ -19,8 +19,8 @@ file_handler = logging.FileHandler('main.log')
 file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s'))
 logger.addHandler(file_handler)
 
-# redis_server = subprocess.Popen('redis-server --port 6380', shell=True)
-# redis_obj = Redis(host='localhost', port=6380, decode_responses=True)
+redis_server = subprocess.Popen('redis-server --port 6380', shell=True)
+redis_obj = Redis(host='localhost', port=6380, decode_responses=True)
 telegram_bot_sendtext('Starting Algo...')
 
 kite = KiteExt_new()
@@ -43,13 +43,14 @@ else:
 
 ticker = Ticker_class(kite=kite, tokens = [256265, 260105])
 kite_func = Kite_functions(kite)
-orders_obj = Class_Orders(kite = kite, ticker = ticker, kite_functions = kite_func)
+orders_obj = Class_Orders(kite = kite, redis_obj = redis_obj, kite_functions = kite_func)
 
 #straddles_obj = straddles(kite=kite, kite_func= kite_func, orders_obj = orders_obj, margin=1)
-straddles_obj = straddles(kite=kite, kite_func= kite_func, orders_obj = orders_obj, ticker = ticker, margin=1)
+straddles_obj = straddles(kite=kite, kite_func= kite_func, orders_obj = orders_obj, redis_obj = redis_obj, ticker = ticker, margin=1)
 
 #ticker.tokens = straddles_obj.nf_bnf_option_tokens
 ticker.start_ticker()
+time.sleep(5)
 
 current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
 error_count = 0
@@ -92,4 +93,4 @@ while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute
 logger.info('Stopping Websocket')
 telegram_bot_sendtext('Algo Shutting down...')
 ticker.kws.stop()
-#redis_server.kill()
+redis_server.kill()

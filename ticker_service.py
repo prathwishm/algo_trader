@@ -1,7 +1,7 @@
-#from update_ticks_using_celery import insert_ticks, add_ticker_tokens, insert_ticks2
+from update_ticks_using_celery import insert_ticks, add_ticker_tokens, insert_ticks2
 from telegram_bot import telegram_bot_sendtext
-from threading import Thread
-import datetime
+# from threading import Thread
+# import datetime
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -24,21 +24,21 @@ class Ticker_class():
         self.kite = kite
         self.tokens = tokens
         self.websocket_is_open = False
-        self.ltp_dict = {}
-        self.ticker_dict = {}
-        self.depth_dict = {}
+        # self.ltp_dict = {}
+        # self.ticker_dict = {}
+        # self.depth_dict = {}
 
     def start_ticker(self):
 
-        #add_ticker_tokens(self.tokens)
+        add_ticker_tokens(self.tokens)
 
-        for each_token in self.tokens:
-            self.ticker_dict[each_token] = []
-            self.depth_dict[each_token] = {}
+        # for each_token in self.tokens:
+        #     self.ticker_dict[each_token] = []
+        #     self.depth_dict[each_token] = {}
  
         def on_ticks(ws,ticks):
             #insert_ticks.delay(ticks)
-            self.insert_ticks2(ticks)
+            insert_ticks2(ticks)
             #print(ticks)
 
         def on_connect(ws,response):
@@ -74,13 +74,13 @@ class Ticker_class():
 
     def subscribe_tokens(self, tokens_list):
         if type(tokens_list) == list and len(tokens_list) > 0:
-            #add_ticker_tokens(tokens_list)
+            add_ticker_tokens(tokens_list)
             for each_token in tokens_list:
                 if each_token not in self.tokens:
                     self.tokens.append(each_token)
-                    if each_token not in self.ticker_dict.keys():
-                        self.ticker_dict[each_token] = []
-                        self.depth_dict[each_token] = {}
+                    # if each_token not in self.ticker_dict.keys():
+                    #     self.ticker_dict[each_token] = []
+                    #     self.depth_dict[each_token] = {}
 
             self.kws.subscribe(self.tokens)
             self.kws.set_mode(self.kws.MODE_FULL,self.tokens)
@@ -95,45 +95,45 @@ class Ticker_class():
             self.kws.unsubscribe(tokens_list)
             logger.info(f"Unsubscribing from tokens: {tokens_list}")
 
-    def insert_ticks(self, ticks):
-        try:
-            for tick in ticks:
-                ticker_token = tick['instrument_token']
+    # def insert_ticks(self, ticks):
+    #     try:
+    #         for tick in ticks:
+    #             ticker_token = tick['instrument_token']
 
-                try:
-                    if ticker_token in [256265, 260105]:
-                        self.ltp_dict[ticker_token] = tick['last_price']
+    #             try:
+    #                 if ticker_token in [256265, 260105]:
+    #                     self.ltp_dict[ticker_token] = tick['last_price']
 
-                    elif not (self.ticker_dict[ticker_token][-1][-1] == tick['volume'] and self.ticker_dict[ticker_token][-1][-2] == tick['last_price']):
-                        self.ltp_dict[ticker_token] = tick['last_price']
-                        if type(tick['last_trade_time']) == str:
-                            tick['last_trade_time'] = datetime.datetime.strptime(tick['last_trade_time'], '%Y-%m-%dT%H:%M:%S')
-                        vals = [tick['last_trade_time'], tick['last_price'], tick['volume']]
-                        self.ticker_dict[ticker_token].append(vals)
-                        self.depth_dict[ticker_token] = tick['depth']
+    #                 elif not (self.ticker_dict[ticker_token][-1][-1] == tick['volume'] and self.ticker_dict[ticker_token][-1][-2] == tick['last_price']):
+    #                     self.ltp_dict[ticker_token] = tick['last_price']
+    #                     if type(tick['last_trade_time']) == str:
+    #                         tick['last_trade_time'] = datetime.datetime.strptime(tick['last_trade_time'], '%Y-%m-%dT%H:%M:%S')
+    #                     vals = [tick['last_trade_time'], tick['last_price'], tick['volume']]
+    #                     self.ticker_dict[ticker_token].append(vals)
+    #                     self.depth_dict[ticker_token] = tick['depth']
 
-                except IndexError:
-                    print(ticker_token, "not in dict.")
-                    self.ltp_dict[ticker_token] = tick['last_price']
-                    if type(tick['last_trade_time']) == str:
-                        tick['last_trade_time'] = datetime.datetime.strptime(tick['last_trade_time'], '%Y-%m-%dT%H:%M:%S')
-                    if (tick['last_trade_time'].hour >= 9 and tick['last_trade_time'].minute >= 15) or tick['last_trade_time'].hour >= 10:
-                        vals = [tick['last_trade_time'], tick['last_price'], tick['volume']]
-                        self.ticker_dict[ticker_token].append(vals)
+    #             except IndexError:
+    #                 print(ticker_token, "not in dict.")
+    #                 self.ltp_dict[ticker_token] = tick['last_price']
+    #                 if type(tick['last_trade_time']) == str:
+    #                     tick['last_trade_time'] = datetime.datetime.strptime(tick['last_trade_time'], '%Y-%m-%dT%H:%M:%S')
+    #                 if (tick['last_trade_time'].hour >= 9 and tick['last_trade_time'].minute >= 15) or tick['last_trade_time'].hour >= 10:
+    #                     vals = [tick['last_trade_time'], tick['last_price'], tick['volume']]
+    #                     self.ticker_dict[ticker_token].append(vals)
 
-                except KeyError as key:
-                    logger.exception(f"Unexpected  KeyError in ticker for {key}")
-                    print(f"Unexpected  KeyError in ticker for {key}")
-                    self.ticker_dict[ticker_token] = []
+    #             except KeyError as key:
+    #                 logger.exception(f"Unexpected  KeyError in ticker for {key}")
+    #                 print(f"Unexpected  KeyError in ticker for {key}")
+    #                 self.ticker_dict[ticker_token] = []
 
-                except Exception as e:
-                    logger.exception("Unexpected error in ticker. Error: "+str(e))
-                    telegram_bot_sendtext("Unexpected error in ticker. Error: "+str(e))
-        except Exception as e:
-            logger.exception("Unexpected error in ticker. Error: "+str(e))
-            telegram_bot_sendtext("Unexpected error in ticker. Error: "+str(e))
+    #             except Exception as e:
+    #                 logger.exception("Unexpected error in ticker. Error: "+str(e))
+    #                 telegram_bot_sendtext("Unexpected error in ticker. Error: "+str(e))
+    #     except Exception as e:
+    #         logger.exception("Unexpected error in ticker. Error: "+str(e))
+    #         telegram_bot_sendtext("Unexpected error in ticker. Error: "+str(e))
 
-    def insert_ticks2(self, ticks):
-        x = Thread(target = self.insert_ticks, args = [ticks])
-        x.start()
+    # def insert_ticks2(self, ticks):
+    #     x = Thread(target = self.insert_ticks, args = [ticks])
+    #     x.start()
         

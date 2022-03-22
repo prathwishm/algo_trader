@@ -23,12 +23,12 @@ def get_banknifty_atm_strike(ltp):
     return atm_strike
 
 class straddles:
-    def __init__(self, kite, kite_func, orders_obj, ticker, margin):
+    def __init__(self, kite, kite_func, orders_obj, redis_obj, ticker, margin):
         self.kite = kite
         self.kite_functions = kite_func
         self.max_trade_margin = margin
         self.orders_obj = orders_obj
-        ##self.redis = redis_obj
+        self.redis = redis_obj
         self.ticker = ticker
         self.placed_bnf_9_20_straddle = False
         self.placed_nf_10_45_straddle = False
@@ -76,8 +76,8 @@ class straddles:
     def short_bnf_straddle(self, qty, sl_type):
         try:
             #banknifty_ltp = self.kite.ltp('NSE:NIFTY BANK')['NSE:NIFTY BANK']['last_price']
-            ##banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
-            banknifty_ltp = self.ticker.ltp_dict[self.bank_nifty_token]
+            banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
+            #banknifty_ltp = self.ticker.ltp_dict[self.bank_nifty_token]
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
             bnf_symbol_ce, bnf_token_ce = self.kite_functions.get_options_symbol_and_token('BANKNIFTY', bnf_atm_strike, 'CE')
             bnf_symbol_pe, bnf_token_pe = self.kite_functions.get_options_symbol_and_token('BANKNIFTY', bnf_atm_strike, 'PE')
@@ -125,8 +125,8 @@ class straddles:
     def short_nifty_straddle(self, qty):
         try:
             #nifty_ltp = self.kite.ltp('NSE:NIFTY 50')['NSE:NIFTY 50']['last_price']
-            ##nifty_ltp = eval(self.redis.get(str(self.nifty_token)))
-            nifty_ltp = self.ticker.ltp_dict[self.nifty_token]
+            nifty_ltp = eval(self.redis.get(str(self.nifty_token)))
+            #nifty_ltp = self.ticker.ltp_dict[self.nifty_token]
             nf_atm_strike = get_nifty_atm_strike(nifty_ltp)
             self.add_straddle_to_websocket(nf_atm_strike, index = 'NIFTY')
             nf_symbol_ce, nf_token_ce = self.kite_functions.get_options_symbol_and_token('NIFTY', nf_atm_strike, 'CE')
@@ -250,23 +250,23 @@ class straddles:
     def add_bnf_straddle_to_watchlist(self, strategy, qty):
         try:
             #banknifty_ltp = self.kite.ltp('NSE:NIFTY BANK')['NSE:NIFTY BANK']['last_price']
-            ##banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
-            banknifty_ltp = self.ticker.ltp_dict[self.bank_nifty_token]
+            banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
+            #banknifty_ltp = self.ticker.ltp_dict[self.bank_nifty_token]
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
             self.add_straddle_to_websocket(bnf_atm_strike, index = 'BANKNIFTY')
-            ##banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
-            banknifty_ltp = self.ticker.ltp_dict[self.bank_nifty_token]
+            banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
+            #banknifty_ltp = self.ticker.ltp_dict[self.bank_nifty_token]
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
             bnf_symbol_ce, bnf_token_ce = self.kite_functions.get_options_symbol_and_token('BANKNIFTY', bnf_atm_strike, 'CE')
             bnf_symbol_pe, bnf_token_pe = self.kite_functions.get_options_symbol_and_token('BANKNIFTY', bnf_atm_strike, 'PE')
 
             #ltp_ce = self.ticker.ticker_dict[bnf_token_ce][-1][1]
-            ##ltp_ce = eval(self.redis.get(str(bnf_token_ce)))
-            ltp_ce = self.ticker.ltp_dict[self.bnf_token_ce]
+            ltp_ce = eval(self.redis.get(str(bnf_token_ce)))
+            #ltp_ce = self.ticker.ltp_dict[bnf_token_ce]
             ce_trigger_price = convert_to_tick_price(ltp_ce + (ltp_ce * .2))
             #ltp_pe = self.ticker.ticker_dict[bnf_token_pe][-1][1]
-            ##ltp_pe = eval(self.redis.get(str(bnf_token_pe)))
-            ltp_pe = self.ticker.ltp_dict[self.bnf_token_pe]
+            ltp_pe = eval(self.redis.get(str(bnf_token_pe)))
+            #ltp_pe = self.ticker.ltp_dict[bnf_token_pe]
             pe_trigger_price = convert_to_tick_price(ltp_pe + (ltp_pe * .2))
             self.watchlist[strategy + 'ce'] = {'token': bnf_token_ce,'symbol': bnf_symbol_ce,'price': ltp_ce, 'trigger_price': ce_trigger_price,
                                             'datetime': datetime.datetime.now(), 'opposite_key':strategy + 'pe', 'quantity':qty}
@@ -282,8 +282,8 @@ class straddles:
         for strategy_option, values_dict in self.watchlist.items():
             if strategy_option in list_of_tokens_to_pop_from_watchlist:
                 continue
-            ##ltp_data = list(map(eval, self.redis.lrange(str(values_dict['token'])+'_data', -25, -1)))
-            ltp_data = self.ticker.ticker_dict[values_dict['token']][-25:]
+            ltp_data = list(map(eval, self.redis.lrange(str(values_dict['token'])+'_data', -25, -1)))
+            #ltp_data = self.ticker.ticker_dict[values_dict['token']][-25:]
             #for tick_list in self.ticker.ticker_dict[strategy_option][-50:]: #last 50 values are used as 5 second data is not expected to exceed 50 ticks
             for tick_list in ltp_data:
                 if tick_list[1] > values_dict['trigger_price'] and tick_list[0] > values_dict['datetime']:
