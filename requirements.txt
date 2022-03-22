@@ -75,7 +75,7 @@ six==1.16.0
 sniffio==1.2.0
 sortedcontainers==2.4.0
 stack-data==0.2.0
-TA-Lib==0.4.24
+#TA-Lib==0.4.24
 tomli==2.0.1
 tornado==6.1
 traitlets==5.1.1
