@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.9
 
 # # Adding trusting keys to apt for repositories
 # RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -

@@ -292,10 +292,11 @@ class straddles:
                     opposite_key = values_dict['opposite_key']
                     list_of_tokens_to_pop_from_watchlist.append(opposite_key)
                     symbol = self.watchlist[opposite_key]['symbol']
-                    if '9' in strategy_option:
-                        sl_price = min(self.watchlist[opposite_key]['trigger_price'], tick_list[1]+80)
-                    else:
-                        sl_price = min(self.watchlist[opposite_key]['trigger_price'], tick_list[1]+120)
+                    sl_price = self.watchlist[opposite_key]['trigger_price']
+                    # if '9' in strategy_option:
+                    #     sl_price = min(self.watchlist[opposite_key]['trigger_price'], tick_list[1]+80)
+                    # else:
+                    #     sl_price = min(self.watchlist[opposite_key]['trigger_price'], tick_list[1]+120)
                     qty = self.watchlist[opposite_key]['quantity']
                     self.short_option_and_place_sl(symbol=symbol, sl_price=sl_price, qty=qty, dt = values_dict['datetime'])
 
@@ -318,9 +319,11 @@ class straddles:
             order_id = self.orders_obj.place_market_order(symbol = symbol, buy_sell= "sell", quantity=qty)
             self.traded_symbols_list.append(symbol)
             strategy_entry_hour = None
+            sl_points = 120
             if dt.hour == 9:
                 self.bnf_920_dict[symbol] = None
                 strategy_entry_hour = 9
+                sl_points = 80
             elif dt.hour == 11:
                 self.bnf_11_45_dict[symbol] = None
                 strategy_entry_hour = 11
@@ -330,6 +333,7 @@ class straddles:
                 if each_order['order_id'] == order_id:
                     if each_order['status'] == 'COMPLETE':
                         avg_sell_price = each_order['average_price']
+                        sl_price = min(sl_price, avg_sell_price+sl_points)
                         print(f"Placing Sl order for {symbol} at {sl_price}")
 
                         sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty)
