@@ -33,7 +33,7 @@ def login_using_selenium():
         #click on Login
         driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div[1]/div/div/div/form/div[4]/button').click()
 
-        time.sleep(2)
+        time.sleep(5)
         #Find input to enter Pin
         pin = driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div[1]/div/div/div/form/div[2]/div/input')
 
@@ -44,7 +44,7 @@ def login_using_selenium():
         driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div[1]/div/div/div/form/div[3]/button').click()
 
         #Store the Cookies and enctoken
-        time.sleep(1)
+        time.sleep(3)
         cookie = driver.get_cookies()
 
         for idx, each_dict in enumerate(cookie):
