@@ -31,7 +31,10 @@ telegram_bot_sendtext('Starting Algo...')
 
 kite = KiteExt_new()
 
-selenium_login_status = login_using_selenium()
+for _ in range(3):
+    selenium_login_status = login_using_selenium()
+    if selenium_login_status:
+        break
 
 enctoken_modification_time = os.path.getmtime('enctoken.txt')
 # Converting the time in seconds to a timestamp
