@@ -100,6 +100,14 @@ while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute
         break
 
 logger.info('Stopping Websocket')
-telegram_bot_sendtext('Algo Shutting down...')
 ticker.kws.stop()
+
+redis_cli = subprocess.Popen('redis-cli -p 6380', shell=True,
+                        stdin =subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE, bufsize=0, universal_newlines=True,)
+
+redis_cli.stdin.write("flushdb \n")
 redis_server.kill()
+
+telegram_bot_sendtext('Algo Shutting down...')
