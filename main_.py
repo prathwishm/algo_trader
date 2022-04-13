@@ -108,6 +108,7 @@ redis_cli = subprocess.Popen('redis-cli -p 6380', shell=True,
                         stderr=subprocess.PIPE, bufsize=0, universal_newlines=True,)
 
 redis_cli.stdin.write("flushdb \n")
+time.sleep(2)
 redis_server.kill()
 
 telegram_bot_sendtext('Algo Shutting down...')
