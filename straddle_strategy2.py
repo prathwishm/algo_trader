@@ -147,9 +147,9 @@ class straddles:
                         if ce_sl_order_id!= -1:
                             self.sl_order_id_list.append(ce_sl_order_id)
                         else:
-                            print("NIFTY straddle CE option Stop Loss order is not Placed!!!!!")
+                            telegram_bot_sendtext("NIFTY straddle CE option Stop Loss order is not Placed!!!!!")
                     else:
-                        print("NIFTY straddle CE option sell order is not filled!!!!!")
+                        telegram_bot_sendtext("NIFTY straddle CE option sell order is not filled!!!!!")
 
                 if each_order['order_id'] == pe_order_id:
                     if each_order['status'] == 'COMPLETE':
@@ -160,11 +160,12 @@ class straddles:
                         if pe_sl_order_id!= -1:
                             self.sl_order_id_list.append(pe_sl_order_id)
                         else:
-                            print("NIFTY straddle PE option Stop Loss order is not Placed!!!!!")
+                            telegram_bot_sendtext("NIFTY straddle PE option Stop Loss order is not Placed!!!!!")
                     else:
-                        print("NIFTY straddle PE option sell order is not filled!!!!!")
+                        telegram_bot_sendtext("NIFTY straddle PE option sell order is not filled!!!!!")
         except Exception as e:
             print("Unexpected error while shorting bnf straddle. Error: "+str(e))
+            telegram_bot_sendtext("Unexpected error while shorting bnf straddle. Error: "+str(e))
             traceback.print_exc()
 
     
@@ -242,7 +243,7 @@ class straddles:
                 self.nf_bnf_option_tokens.extend([token_ce, token_pe])
 
         if len(tokens_list) > 0:
-            print(f'ADDING {tokens_list} to websocket')
+            telegram_bot_sendtext(f'ADDING {tokens_list} to websocket')
             self.ticker.subscribe_tokens(tokens_list)
             time.sleep(5)
 
@@ -275,6 +276,7 @@ class straddles:
 
         except Exception as e:
             print("Unexpected error in add_bnf_straddle_to_watchlist. Error: "+str(e))
+            telegram_bot_sendtext("Unexpected error in add_bnf_straddle_to_watchlist. Error: "+str(e))
             traceback.print_exc()
 
     def short_options_on_trigger(self):
@@ -311,6 +313,7 @@ class straddles:
                 self.watchlist.pop(strat_option)
             except Exception as e:
                 print(f"Unexpected error while popping {strat_option} from watchlist. Error: "+str(e))
+                telegram_bot_sendtext(f"Unexpected error while popping {strat_option} from watchlist. Error: "+str(e))
                 traceback.print_exc()
 
     
@@ -328,22 +331,30 @@ class straddles:
                 self.bnf_11_45_dict[symbol] = None
                 strategy_entry_hour = 11
             time.sleep(1)
+            sl_order_is_placed = False
+            for _ in range(5):
+                if sl_order_is_placed:
+                    break
+                time.sleep(1)
+                for each_order in self.kite.orders():
+                    if each_order['order_id'] == order_id:
+                        if each_order['status'] == 'COMPLETE':
+                            avg_sell_price = each_order['average_price']
+                            sl_price = min(sl_price, avg_sell_price+sl_points)
+                            telegram_bot_sendtext(f"Placing Sl order for {symbol} at {sl_price}")
 
-            for each_order in self.kite.orders():
-                if each_order['order_id'] == order_id:
-                    if each_order['status'] == 'COMPLETE':
-                        avg_sell_price = each_order['average_price']
-                        sl_price = min(sl_price, avg_sell_price+sl_points)
-                        print(f"Placing Sl order for {symbol} at {sl_price}")
-
-                        sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty)
-                        if sl_order_id!= -1:
-                            self.sl_order_id_list.append(sl_order_id)
-                            if strategy_entry_hour == 9:
-                                self.bnf_920_dict[symbol] = sl_order_id
-                            elif strategy_entry_hour == 11:
-                                self.bnf_11_45_dict[symbol] = sl_order_id
+                            sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty)
+                            if sl_order_id!= -1:
+                                sl_order_is_placed = True
+                                self.sl_order_id_list.append(sl_order_id)
+                                if strategy_entry_hour == 9:
+                                    self.bnf_920_dict[symbol] = sl_order_id
+                                elif strategy_entry_hour == 11:
+                                    self.bnf_11_45_dict[symbol] = sl_order_id
+                            else:
+                                print(f"Sl order for {symbol} at {sl_price} is not Placed!!!!!")
                         else:
-                            print(f"Sl order for {symbol} at {sl_price} is not Placed!!!!!")
-                    else:
-                        print(f"{symbol} option sell order is not filled!!!!!")
+                            print(f"{symbol} option sell order is not filled!!!!!")
+
+            if not sl_order_is_placed:
+                telegram_bot_sendtext(f"{symbol} option sell order is not filled!!!!!")

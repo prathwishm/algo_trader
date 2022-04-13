@@ -38,10 +38,10 @@ class Class_Orders:
             if type(depth) == dict:
 
                 if buy_sell == "buy":
-                    price = convert_to_tick_price(depth['sell'][1]['price'] + (0.02 * depth['sell'][1]['price']) )
+                    price = convert_to_tick_price(depth['sell'][1]['price'] + (0.05 * depth['sell'][1]['price']) )
                         
                 elif buy_sell == "sell":
-                    price = convert_to_tick_price(depth['buy'][1]['price'] - (0.02 * depth['buy'][1]['price']) )
+                    price = convert_to_tick_price(depth['buy'][1]['price'] - (0.05 * depth['buy'][1]['price']) )
                 
                 placed_order_id = kite.place_order(tradingsymbol=symbol,
                                             exchange=kite.EXCHANGE_NFO,
@@ -52,7 +52,7 @@ class Class_Orders:
                                             product=kite.PRODUCT_MIS,
                                             variety=kite.VARIETY_REGULAR)
             else:
-                print(f'Placing market order for {symbol}')
+                telegram_bot_sendtext(f'Placing market order for {symbol}')
                 placed_order_id = kite.place_order(tradingsymbol=symbol,
                                             exchange=kite.EXCHANGE_NFO,
                                             transaction_type=t_type,
