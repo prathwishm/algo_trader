@@ -138,3 +138,8 @@ class Kite_functions():
         #print(expiry)
         temp = temp[temp['expiry'] == expiry]
         return list(temp['tradingsymbol'])[0], list(temp['instrument_token'])[0]
+
+    def get_option_strike_and_underlying_name_from_symbol(self, symbol):
+        inst = self.instrument_df
+        temp_df = inst[inst['tradingsymbol'] == symbol]
+        return list(temp_df['strike'])[0], list(temp_df['name'])[0]

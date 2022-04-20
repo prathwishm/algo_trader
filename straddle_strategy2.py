@@ -1,6 +1,6 @@
 import datetime
 import pytz
-import pandas as pd
+#import pandas as pd
 import traceback
 import time
 from convert_float_to_tick_price import convert_to_tick_price
@@ -44,8 +44,16 @@ class straddles:
         self.nf_bnf_option_tokens.extend([self.nifty_token, self.bank_nifty_token])
         self.bnf_920_dict = {}
         self.bnf_11_45_dict = {}
+        self.nf_10_45_dict = {}
         self.exit_2_55_done = False
         self.exit_3_00_done = False
+        self.last_orders_checked_dt = None
+        self.buy_hedges_and_increase_quantity = False
+        if datetime.date.today().isoweekday() in [3,4]:
+            self.buy_hedges_and_increase_quantity = True
+            self.last_orders_checked_dt = datetime.datetime.now()
+        self.hedges_dict = {}
+        self.hedge_exit_sl_order_id_list = []
 
         # nifty_ltp = kite.ltp('NSE:NIFTY 50')['NSE:NIFTY 50']['last_price']
         # nf_atm_strike = get_nifty_atm_strike(nifty_ltp)
@@ -131,6 +139,15 @@ class straddles:
             self.add_straddle_to_websocket(nf_atm_strike, index = 'NIFTY')
             nf_symbol_ce, nf_token_ce = self.kite_functions.get_options_symbol_and_token('NIFTY', nf_atm_strike, 'CE')
             nf_symbol_pe, nf_token_pe = self.kite_functions.get_options_symbol_and_token('NIFTY', nf_atm_strike, 'PE')
+            if self.buy_hedges_and_increase_quantity:
+                qty = qty * 3
+                hedge_symbol_ce, hedge_token_ce = self.get_hedge_symbol(nf_symbol_ce)
+                hedge_symbol_pe, hedge_token_pe = self.get_hedge_symbol(nf_symbol_pe)
+                hedge_ce_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol_ce, buy_sell= "buy", quantity=qty, use_limit_order = False)
+                hedge_pe_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol_pe, buy_sell= "buy", quantity=qty, use_limit_order = False)
+                self.traded_symbols_list.extend([hedge_symbol_ce, hedge_symbol_pe])
+                time.sleep(1)
+
             ce_order_id = self.orders_obj.place_market_order(symbol = nf_symbol_ce, buy_sell= "sell", quantity=qty)
             pe_order_id = self.orders_obj.place_market_order(symbol = nf_symbol_pe, buy_sell= "sell", quantity=qty)
             self.traded_symbols_list.extend([nf_symbol_ce, nf_symbol_pe])
@@ -146,6 +163,9 @@ class straddles:
                         ce_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=nf_symbol_ce, buy_sell="buy", trigger_price= trigger_price_nf, price = trigger_price_nf + 20, quantity=qty)
                         if ce_sl_order_id!= -1:
                             self.sl_order_id_list.append(ce_sl_order_id)
+                            self.nf_10_45_dict[nf_symbol_ce] = ce_sl_order_id
+                            if self.buy_hedges_and_increase_quantity:
+                                self.hedges_dict[ce_sl_order_id] = hedge_symbol_ce
                         else:
                             telegram_bot_sendtext("NIFTY straddle CE option Stop Loss order is not Placed!!!!!")
                     else:
@@ -159,6 +179,9 @@ class straddles:
                         pe_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=nf_symbol_pe, buy_sell="buy", trigger_price= trigger_price_nf, price = trigger_price_nf + 20, quantity=qty)
                         if pe_sl_order_id!= -1:
                             self.sl_order_id_list.append(pe_sl_order_id)
+                            self.nf_10_45_dict[nf_symbol_pe] = pe_sl_order_id
+                            if self.buy_hedges_and_increase_quantity:
+                                self.hedges_dict[pe_sl_order_id] = hedge_symbol_pe
                         else:
                             telegram_bot_sendtext("NIFTY straddle PE option Stop Loss order is not Placed!!!!!")
                     else:
@@ -211,6 +234,21 @@ class straddles:
                     exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
                     if exit_quantity > 0:
                         self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity)
+
+        if self.buy_hedges_and_increase_quantity:
+            dt_now = datetime.datetime.now()
+            time_difference = dt_now - self.last_orders_checked_dt
+            if time_difference.seconds >= 6:
+                self.last_orders_checked_dt = dt_now
+                for each_order in self.kite.orders():
+                    if each_order['order_id'] in self.hedges_dict.keys():
+                        if each_order['status'] == 'COMPLETE' and each_order['order_id'] not in self.hedge_exit_sl_order_id_list:
+                            if each_order['filled_quantity'] == each_order['quantity']:
+                                self.hedge_exit_sl_order_id_list.append(each_order['status'])
+                                qty = each_order['filled_quantity']
+                                hedge_symbol = self.hedges_dict[each_order['order_id']]
+                                self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= 'sell', quantity=qty, use_limit_order = False)
+
 
     def cancel_orders_and_exit_position(self, symbols_dict, qty):
         for each_order in self.kite.orders():
@@ -319,6 +357,16 @@ class straddles:
     
 
     def short_option_and_place_sl(self, symbol, sl_price, qty, dt):
+            if self.buy_hedges_and_increase_quantity:
+                qty = qty * 3
+                hedge_symbol, hedge_token = self.get_hedge_symbol(symbol)
+                if hedge_symbol == None:
+                    telegram_bot_sendtext(f"Hedge Symbol is None for {symbol}. Straddle entry time is {dt}")
+                else:
+                    hedge_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= "buy", quantity=qty, use_limit_order = False)
+                    self.traded_symbols_list.append(hedge_symbol)
+                    time.sleep(1)
+                
             order_id = self.orders_obj.place_market_order(symbol = symbol, buy_sell= "sell", quantity=qty)
             self.traded_symbols_list.append(symbol)
             strategy_entry_hour = None
@@ -351,6 +399,8 @@ class straddles:
                                     self.bnf_920_dict[symbol] = sl_order_id
                                 elif strategy_entry_hour == 11:
                                     self.bnf_11_45_dict[symbol] = sl_order_id
+                                if self.buy_hedges_and_increase_quantity:
+                                    self.hedges_dict[sl_order_id] = hedge_symbol
                             else:
                                 print(f"Sl order for {symbol} at {sl_price} is not Placed!!!!!")
                         else:
@@ -358,3 +408,55 @@ class straddles:
 
             if not sl_order_is_placed:
                 telegram_bot_sendtext(f"{symbol} option sell order is not filled!!!!!")
+
+
+    def get_hedge_symbol(self, symbol):
+        try:
+            strike, underlying_name = self.kite_functions.get_option_strike_and_underlying_name_from_symbol(symbol)
+            if underlying_name == 'BANKNIFTY':
+                starting_distance = 200
+                strike_difference = 100
+            elif underlying_name == 'NIFTY':
+                if str(int(strike))[-2] == '5':
+                    strike += 50
+                starting_distance = 200
+                strike_difference = 100
+            ce_pe = symbol[-2:]
+            otm_symbols_list = []
+            if ce_pe == 'CE':
+                otm_strike = strike + starting_distance
+                for _ in range(20):
+                    nf_bnf_symbol_ce, bnf_token_ce = self.kite_functions.get_options_symbol_and_token(underlying_name, otm_strike, 'CE')
+                    #filter out 100, 400 and 900 strikes. idx is -5 because ends with CE
+                    if not (underlying_name == 'BANKNIFTY' and str(otm_strike)[-5] in ['1', '4', '9']):
+                        otm_symbols_list.append('NFO:'+nf_bnf_symbol_ce)
+                    otm_strike += strike_difference
+            
+            elif ce_pe == 'PE':
+                otm_strike = strike - starting_distance
+                for _ in range(20):
+                    nf_bnf_symbol_pe, bnf_token_ce = self.kite_functions.get_options_symbol_and_token(underlying_name, otm_strike, 'PE')
+                    #filter out 100, 400 and 900 strikes. idx is -5 because ends with PE
+                    if not (underlying_name == 'BANKNIFTY' and str(otm_strike)[-5] in ['1', '4', '9']):
+                        otm_symbols_list.append('NFO:'+nf_bnf_symbol_pe)
+                    otm_strike -= strike_difference
+                
+            ltp_list = ['NFO:'+symbol]
+            ltp_list.extend(otm_symbols_list)
+            ltp_dict = self.kite.ltp([ltp_list])
+            symbol_ltp = ltp_dict['NFO:'+symbol]['last_price']
+            max_hedge_ltp = symbol_ltp * 0.05
+            for key, values in ltp_dict.items():
+                if values['last_price'] < max_hedge_ltp:
+                    hedge_symbol = key[4:]
+                    hedge_token = values['instrument_token']
+                    #Key are sorted hence break is required for CE
+                    if ce_pe == 'CE':
+                        break
+            
+            return hedge_symbol, hedge_token
+        except Exception as e:
+            print(f"Unexpected error while finding hedge for {symbol}. Error: "+str(e))
+            telegram_bot_sendtext(f"Unexpected error while finding hedge for {symbol}. Error: "+str(e))
+            traceback.print_exc()
+            return None, None

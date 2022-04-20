@@ -17,7 +17,7 @@ class Class_Orders:
         self.redis = redis_obj
         self.kite_functions = kite_functions
 
-    def place_market_order(self, symbol, buy_sell, quantity):
+    def place_market_order(self, symbol, buy_sell, quantity, use_limit_order = True):
         try:
             kite = self.kite
             if 'NSE:' in symbol or 'NFO:' in symbol:
@@ -35,7 +35,7 @@ class Class_Orders:
             #depth = self.ticker.depth_dict[token]
 
             # IF websocket is working use market depth to place limit order. Else place market order.
-            if type(depth) == dict:
+            if type(depth) == dict and use_limit_order:
 
                 if buy_sell == "buy":
                     price = convert_to_tick_price(depth['sell'][1]['price'] + (0.05 * depth['sell'][1]['price']) )
