@@ -29,10 +29,12 @@ class Class_Orders:
             elif buy_sell == "sell":
                 t_type=kite.TRANSACTION_TYPE_SELL
             
-            token = self.kite_functions.get_symbol_token(symbol)
+            depth = None
+            if use_limit_order:
+                token = self.kite_functions.get_symbol_token(symbol)
 
-            depth = eval(self.redis.get(str(token)+'_depth'))
-            #depth = self.ticker.depth_dict[token]
+                depth = eval(self.redis.get(str(token)+'_depth'))
+                #depth = self.ticker.depth_dict[token]
 
             # IF websocket is working use market depth to place limit order. Else place market order.
             if type(depth) == dict and use_limit_order:
