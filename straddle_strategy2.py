@@ -244,7 +244,7 @@ class straddles:
                     if each_order['order_id'] in self.hedges_dict.keys():
                         if each_order['status'] == 'COMPLETE' and each_order['order_id'] not in self.hedge_exit_sl_order_id_list:
                             if each_order['filled_quantity'] == each_order['quantity']:
-                                self.hedge_exit_sl_order_id_list.append(each_order['status'])
+                                self.hedge_exit_sl_order_id_list.append(each_order['order_id'])
                                 qty = each_order['filled_quantity']
                                 hedge_symbol = self.hedges_dict[each_order['order_id']]
                                 self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= 'sell', quantity=qty, use_limit_order = False)
