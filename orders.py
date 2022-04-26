@@ -30,14 +30,15 @@ class Class_Orders:
                 t_type=kite.TRANSACTION_TYPE_SELL
             
             depth = None
-            if use_limit_order:
+            try:
                 token = self.kite_functions.get_symbol_token(symbol)
 
                 depth = eval(self.redis.get(str(token)+'_depth'))
                 #depth = self.ticker.depth_dict[token]
 
-            # IF websocket is working use market depth to place limit order. Else place market order.
-            if type(depth) == dict and use_limit_order:
+                # IF websocket is working use market depth to place limit order. Else place market order.
+                if not (type(depth) == dict and use_limit_order):
+                    raise Exception("place market order")
 
                 if buy_sell == "buy":
                     price = convert_to_tick_price(depth['sell'][1]['price'] + (0.05 * depth['sell'][1]['price']) )
@@ -53,7 +54,7 @@ class Class_Orders:
                                             price=price,
                                             product=kite.PRODUCT_MIS,
                                             variety=kite.VARIETY_REGULAR)
-            else:
+            except:
                 telegram_bot_sendtext(f'Placing market order for {symbol}')
                 placed_order_id = kite.place_order(tradingsymbol=symbol,
                                             exchange=kite.EXCHANGE_NFO,

@@ -258,6 +258,8 @@ class straddles:
 
         for each_pos in self.kite.positions()['day']:
             if each_pos['tradingsymbol'] in symbols_dict.keys() and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0:
+                if self.buy_hedges_and_increase_quantity:
+                    qty = qty * 3
                 exit_quantity = qty
                 exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
                 if exit_quantity > 0:
