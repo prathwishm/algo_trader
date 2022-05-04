@@ -391,6 +391,7 @@ class straddles:
                         if each_order['status'] == 'COMPLETE':
                             avg_sell_price = each_order['average_price']
                             sl_price = min(sl_price, avg_sell_price+sl_points)
+                            sl_price = round(sl_price, 1)
                             telegram_bot_sendtext(f"Placing Sl order for {symbol} at {sl_price}")
 
                             sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty)
