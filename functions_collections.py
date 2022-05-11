@@ -118,28 +118,40 @@ class Kite_functions():
     #     return df
 
     def get_options_symbol_and_token(self, name, strike, ce_pe):
-        inst = self.instrument_df
-        temp = inst[inst['exchange'] == 'NFO']
-        temp = temp[temp['segment'] == 'NFO-OPT']
-        temp = temp[temp['name'] == name]
-        expiry = sorted(list(temp[temp['exchange'] == 'NFO']['expiry'].unique()))[0]
-        #print(expiry)
-        temp = temp[temp['expiry'] == expiry]
-        temp = temp[temp['strike'] == strike]
-        temp = temp[temp['instrument_type'] == ce_pe]
-        return list(temp['tradingsymbol'])[0], list(temp['instrument_token'])[0]
+        try:
+            inst = self.instrument_df
+            temp = inst[inst['exchange'] == 'NFO']
+            temp = temp[temp['segment'] == 'NFO-OPT']
+            temp = temp[temp['name'] == name]
+            expiry = sorted(list(temp[temp['exchange'] == 'NFO']['expiry'].unique()))[0]
+            #print(expiry)
+            temp = temp[temp['expiry'] == expiry]
+            temp = temp[temp['strike'] == strike]
+            temp = temp[temp['instrument_type'] == ce_pe]
+            return list(temp['tradingsymbol'])[0], list(temp['instrument_token'])[0]
+        except Exception as e:
+            print(f"Error in get_options_symbol_and_token(self, {name}, {strike}, {ce_pe}). Error: {e}")
+            return None, None
 
     def get_futures_symbol_and_token(self, name):
-        inst = self.instrument_df
-        temp = inst[inst['exchange'] == 'NFO']
-        temp = temp[temp['segment'] == 'NFO-FUT']
-        temp = temp[temp['name'] == name]
-        expiry = sorted(list(temp[temp['exchange'] == 'NFO']['expiry'].unique()))[0]
-        #print(expiry)
-        temp = temp[temp['expiry'] == expiry]
-        return list(temp['tradingsymbol'])[0], list(temp['instrument_token'])[0]
+        try:
+            inst = self.instrument_df
+            temp = inst[inst['exchange'] == 'NFO']
+            temp = temp[temp['segment'] == 'NFO-FUT']
+            temp = temp[temp['name'] == name]
+            expiry = sorted(list(temp[temp['exchange'] == 'NFO']['expiry'].unique()))[0]
+            #print(expiry)
+            temp = temp[temp['expiry'] == expiry]
+            return list(temp['tradingsymbol'])[0], list(temp['instrument_token'])[0]
+        except Exception as e:
+            print(f"Error in get_futures_symbol_and_token(self, {name}). Error: {e}")
+            return None, None
 
     def get_option_strike_and_underlying_name_from_symbol(self, symbol):
-        inst = self.instrument_df
-        temp_df = inst[inst['tradingsymbol'] == symbol]
-        return list(temp_df['strike'])[0], list(temp_df['name'])[0]
+        try:
+            inst = self.instrument_df
+            temp_df = inst[inst['tradingsymbol'] == symbol]
+            return list(temp_df['strike'])[0], list(temp_df['name'])[0]
+        except Exception as e:
+            print(f"Error in get_option_strike_and_underlying_name_from_symbol(self, {symbol}). Error: {e}")
+            return None, None

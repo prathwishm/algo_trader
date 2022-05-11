@@ -99,7 +99,7 @@ class straddles:
                     if each_order['status'] == 'COMPLETE':
                         avg_sell_price = each_order['average_price']
                         if sl_type == 'point_based':
-                            trigger_price_bnf = avg_sell_price + 40
+                            trigger_price_bnf = round(avg_sell_price + 40, 1)
                         elif sl_type == 'percent_based':
                             trigger_price_bnf = convert_to_tick_price(avg_sell_price + (avg_sell_price * .2))
                         print("Placing CE Sl order for BNF at", trigger_price_bnf)
@@ -115,7 +115,7 @@ class straddles:
                     if each_order['status'] == 'COMPLETE':
                         avg_sell_price = each_order['average_price']
                         if sl_type == 'point_based':
-                            trigger_price_bnf = avg_sell_price + 40
+                            trigger_price_bnf = round(avg_sell_price + 40, 1)
                         elif sl_type == 'percent_based':
                             trigger_price_bnf = convert_to_tick_price(avg_sell_price + (avg_sell_price * .2))
                         print("Placing PE Sl order for BNF at", trigger_price_bnf)
@@ -430,6 +430,9 @@ class straddles:
                 otm_strike = strike + starting_distance
                 for _ in range(20):
                     nf_bnf_symbol_ce, bnf_token_ce = self.kite_functions.get_options_symbol_and_token(underlying_name, otm_strike, 'CE')
+                    # If symbol is not present in instrument_df stop
+                    if nf_bnf_symbol_pe == None:
+                        break
                     #filter out 100, 400 and 900 strikes. idx is -5 because ends with CE
                     if not (underlying_name == 'BANKNIFTY' and str(otm_strike)[-5] in ['1', '4', '9']):
                         otm_symbols_list.append('NFO:'+nf_bnf_symbol_ce)
@@ -439,6 +442,9 @@ class straddles:
                 otm_strike = strike - starting_distance
                 for _ in range(20):
                     nf_bnf_symbol_pe, bnf_token_ce = self.kite_functions.get_options_symbol_and_token(underlying_name, otm_strike, 'PE')
+                    # If symbol is not present in instrument_df stop
+                    if nf_bnf_symbol_pe == None:
+                        break
                     #filter out 100, 400 and 900 strikes. idx is -5 because ends with PE
                     if not (underlying_name == 'BANKNIFTY' and str(otm_strike)[-5] in ['1', '4', '9']):
                         otm_symbols_list.append('NFO:'+nf_bnf_symbol_pe)
@@ -449,6 +455,8 @@ class straddles:
             ltp_dict = self.kite.ltp([ltp_list])
             symbol_ltp = ltp_dict['NFO:'+symbol]['last_price']
             max_hedge_ltp = symbol_ltp * 0.05
+            hedge_symbol =  None
+            hedge_token = None
             for key, values in ltp_dict.items():
                 if values['last_price'] < max_hedge_ltp:
                     hedge_symbol = key[4:]
@@ -456,6 +464,11 @@ class straddles:
                     #Key are sorted hence break is required for CE
                     if ce_pe == 'CE':
                         break
+            #if no symbol meets criteria return the last item in ltp_list 
+            if hedge_symbol ==  None:
+                print("Hedge symbol is None for", symbol)
+                hedge_symbol = ltp_list[-1][4:]
+                hedge_token = ltp_dict[ltp_list[-1]]['instrument_token']
             
             return hedge_symbol, hedge_token
         except Exception as e:
