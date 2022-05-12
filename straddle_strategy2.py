@@ -431,7 +431,7 @@ class straddles:
                 for _ in range(20):
                     nf_bnf_symbol_ce, bnf_token_ce = self.kite_functions.get_options_symbol_and_token(underlying_name, otm_strike, 'CE')
                     # If symbol is not present in instrument_df stop
-                    if nf_bnf_symbol_pe == None:
+                    if nf_bnf_symbol_ce == None:
                         break
                     #filter out 100, 400 and 900 strikes. idx is -5 because ends with CE
                     if not (underlying_name == 'BANKNIFTY' and str(otm_strike)[-5] in ['1', '4', '9']):
