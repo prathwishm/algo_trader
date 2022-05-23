@@ -9,7 +9,7 @@ from redis import Redis
 import datetime, pytz, time, os
 import traceback
 import subprocess
-from straddle_strategy2 import straddles
+from straddle_strategy3 import straddles
 import logging
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ error_count = 0
 while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute >= 30):
     try:
         current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
-        if current_dt.hour == 15 and current_dt.minute >= 11:
+        if current_dt.hour == 15 and current_dt.minute >= 21:
             #Exit from all open positions at 3:15.
             # kite_day_positions_list = kite_func.get_positions_list()['net']
             # for each_position in kite_day_positions_list:
