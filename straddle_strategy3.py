@@ -51,6 +51,7 @@ class straddles:
         self.iso_week_day = datetime.date.today().isoweekday()
 
         self.nf_9_16_qty = 50
+        self.nf_9_16_expiry_qty = 50
         self.bnf_9_20_qty = 25
         self.bnf_10_05_qty  =25
         self.nf_9_40_qty = 50
@@ -72,6 +73,7 @@ class straddles:
             self.bnf_11_15_qty  = 50
 
         self.nf_9_16_dict = {}
+        self.nf_9_16_expiry_dict = {}
         self.bnf_9_20_dict = {}
         self.bnf_10_05_dict  = {}
         self.nf_9_40_dict = {}
@@ -80,6 +82,7 @@ class straddles:
         self.bnf_11_45_dict = {}
         self.nf_11_30_dict = {}
         self.bnf_13_20_dict = {}
+        self.exit_12_44_done = False
         self.exit_14_55_done = False
         self.exit_15_00_done = False
         self.exit_15_05_done = False
@@ -231,7 +234,9 @@ class straddles:
                         ce_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=nf_symbol_ce, buy_sell="buy", trigger_price= trigger_price_nf, price = trigger_price_nf + 20, quantity=qty)
                         if ce_sl_order_id!= -1:
                             self.sl_order_id_list.append(ce_sl_order_id)
-                            if current_dt.hour == 9 and current_dt.minute in [39, 40]:
+                            if current_dt.hour == 9 and current_dt.minute == 16:
+                                self.nf_9_16_expiry_dict[nf_symbol_ce] = ce_sl_order_id
+                            elif current_dt.hour == 9 and current_dt.minute in [39, 40]:
                                 self.nf_9_40_dict[nf_symbol_ce] = ce_sl_order_id
                             elif current_dt.hour == 10 and current_dt.minute in [44, 45]:
                                 self.nf_10_45_dict[nf_symbol_ce] = ce_sl_order_id
@@ -252,7 +257,9 @@ class straddles:
                         pe_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=nf_symbol_pe, buy_sell="buy", trigger_price= trigger_price_nf, price = trigger_price_nf + 20, quantity=qty)
                         if pe_sl_order_id!= -1:
                             self.sl_order_id_list.append(pe_sl_order_id)
-                            if current_dt.hour == 9 and current_dt.minute in [39, 40]:
+                            if current_dt.hour == 9 and current_dt.minute == 16:
+                                self.nf_9_16_expiry_dict[nf_symbol_pe] = pe_sl_order_id
+                            elif current_dt.hour == 9 and current_dt.minute in [39, 40]:
                                 self.nf_9_40_dict[nf_symbol_pe] = pe_sl_order_id
                             elif current_dt.hour == 10 and current_dt.minute in [44, 45]:
                                 self.nf_10_45_dict[nf_symbol_pe] = pe_sl_order_id
@@ -278,6 +285,8 @@ class straddles:
 
         if not self.placed_nf_9_16_strangle and self.iso_week_day in [1, 3, 4] and current_dt.hour == 9 and current_dt.minute >=16:
             self.placed_nf_9_16_strangle = True
+            if self.iso_week_day == 5:
+                self.short_nifty_straddle(qty=self.nf_9_16_expiry_qty, sl_percent=0.25, strangle = True, strike_distance = 100)
             self.add_nf_strangle_to_watchlist('9_16_strangle', self.nf_9_16_qty)
 
         if not self.placed_bnf_9_20_straddle and current_dt.hour == 9 and (current_dt.minute >=20 or (current_dt.minute >=19 and current_dt.second >=54)):
@@ -314,6 +323,10 @@ class straddles:
         if not self.placed_bnf_13_20_strangle and self.iso_week_day in [1, 2, 3, 4] and current_dt.hour == 13 and current_dt.minute >=20:
             self.placed_bnf_13_20_strangle = True
             self.short_bnf_straddle(qty= self.bnf_13_20_qty, sl_percent=0.25, strangle = True, strike_distance = 200)
+
+        if self.iso_week_day == 5 and not self.exit_12_44_done and current_dt.hour == 12 and current_dt.minute >=44 and current_dt.second >=4:
+            self.exit_12_44_done = True
+            self.cancel_orders_and_exit_position(self.nf_9_16_expiry_dict, self.nf_9_16_expiry_qty)
 
         if not self.exit_14_55_done and current_dt.hour == 14 and (current_dt.minute >=55 or (current_dt.minute >=54 and current_dt.second >=54)):
             self.exit_14_55_done = True
@@ -388,9 +401,9 @@ class straddles:
 
                     for each_pos in self.kite.positions()['day']:
                         if each_pos['tradingsymbol'] in symbols_dict.keys() and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0:
-                            if self.buy_hedges_and_increase_quantity:
-                                qty = qty * 3
                             exit_quantity = qty
+                            if self.buy_hedges_and_increase_quantity:
+                                exit_quantity = qty * 3
                             exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
                             if exit_quantity > 0:
                                 self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity)
