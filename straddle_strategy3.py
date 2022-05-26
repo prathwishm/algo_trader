@@ -285,7 +285,7 @@ class straddles:
 
         if not self.placed_nf_9_16_strangle and self.iso_week_day in [1, 3, 4] and current_dt.hour == 9 and current_dt.minute >=16:
             self.placed_nf_9_16_strangle = True
-            if self.iso_week_day == 5:
+            if self.iso_week_day == 4:
                 self.short_nifty_straddle(qty=self.nf_9_16_expiry_qty, sl_percent=0.25, strangle = True, strike_distance = 100)
             self.add_nf_strangle_to_watchlist('9_16_strangle', self.nf_9_16_qty)
 
@@ -324,7 +324,7 @@ class straddles:
             self.placed_bnf_13_20_strangle = True
             self.short_bnf_straddle(qty= self.bnf_13_20_qty, sl_percent=0.25, strangle = True, strike_distance = 200)
 
-        if self.iso_week_day == 5 and not self.exit_12_44_done and current_dt.hour == 12 and current_dt.minute >=44 and current_dt.second >=4:
+        if self.iso_week_day == 4 and not self.exit_12_44_done and current_dt.hour == 12 and current_dt.minute >=44 and current_dt.second >=4:
             self.exit_12_44_done = True
             self.cancel_orders_and_exit_position(self.nf_9_16_expiry_dict, self.nf_9_16_expiry_qty)
 
