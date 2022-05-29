@@ -50,15 +50,15 @@ class straddles:
         self.nf_bnf_option_tokens.extend([self.nifty_token, self.bank_nifty_token])
         self.iso_week_day = datetime.date.today().isoweekday()
 
-        self.nf_9_16_qty = 50
-        self.nf_9_16_expiry_qty = 50
-        self.bnf_9_20_qty = 25
-        self.bnf_10_05_qty  =25
-        self.nf_9_40_qty = 50
-        self.nf_10_45_qty = 50
-        self.bnf_11_15_qty = 25
-        self.bnf_11_45_qty = 25
-        self.nf_11_30_qty = 50
+        self.nf_9_16_qty = 100
+        self.nf_9_16_expiry_qty = 100
+        self.bnf_9_20_qty = 50
+        self.bnf_10_05_qty  =50
+        self.nf_9_40_qty = 100
+        self.nf_10_45_qty = 100
+        self.bnf_11_15_qty = 50
+        self.bnf_11_45_qty = 50
+        self.nf_11_30_qty = 100
         self.bnf_13_20_qty = 25
 
         # if self.iso_week_day == 1:
@@ -66,11 +66,11 @@ class straddles:
         #     self.bnf_10_05_qty  = 50
         if self.iso_week_day == 2:
             #Tuesday
-            self.bnf_11_15_qty  = 50
+            self.bnf_11_15_qty  = 100
         if self.iso_week_day == 5:
             #Friday
-            self.nf_11_30_qty  = 100
-            self.bnf_11_15_qty  = 50
+            self.nf_11_30_qty  = 200
+            self.bnf_11_15_qty  = 75
 
         self.nf_9_16_dict = {}
         self.nf_9_16_expiry_dict = {}
@@ -314,7 +314,7 @@ class straddles:
         if not self.placed_bnf_11_45_straddle and current_dt.hour == 11 and (current_dt.minute >=45 or (current_dt.minute >=44 and current_dt.second >=54)):
             self.placed_bnf_11_45_straddle = True
             #self.short_bnf_straddle(25, 'percent_based')
-            self.add_bnf_straddle_to_watchlist('11_45_straddle', self.bnf_11_45_qty)
+            self.add_bnf_strangle_to_watchlist(strategy = '11_45_strangle', qty=self.bnf_11_45_qty, sl_percent=0.20)
 
         if not self.placed_nf_11_30_strangle and current_dt.hour == 11 and (current_dt.minute >=30 or (current_dt.minute >=29 and current_dt.second >=52)):
             self.placed_nf_11_30_strangle = True
@@ -394,19 +394,21 @@ class straddles:
 
 
     def cancel_orders_and_exit_position(self, symbols_dict, qty):
+        exited_symbols = [] #Used to prevent exiting of same symbol from a different strategy
         for each_order in self.kite.orders():
             if each_order['order_id'] in symbols_dict.values():
                 if each_order['status'] == 'TRIGGER PENDING':
                     self.orders_obj.cancel_order(each_order['order_id'])
 
                     for each_pos in self.kite.positions()['day']:
-                        if each_pos['tradingsymbol'] in symbols_dict.keys() and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0:
+                        if each_pos['tradingsymbol'] in symbols_dict.keys() and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0 and each_pos['tradingsymbol'] not in exited_symbols:
                             exit_quantity = qty
                             if self.buy_hedges_and_increase_quantity:
                                 exit_quantity = qty * 3
                             exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
                             if exit_quantity > 0:
                                 self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity)
+                                exited_symbols.append(each_pos['tradingsymbol'])
 
 
 
@@ -661,14 +663,22 @@ class straddles:
             if underlying_name == 'BANKNIFTY':
                 starting_distance = 200
                 strike_difference = 100
+                banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
+                atm_strike = get_banknifty_atm_strike(banknifty_ltp)
             elif underlying_name == 'NIFTY':
                 if str(int(strike))[-2] == '5':
                     strike += 50
                 starting_distance = 200
                 strike_difference = 100
+                nifty_ltp = eval(self.redis.get(str(self.nifty_token)))
+                atm_strike = get_nifty_atm_strike(nifty_ltp)
             ce_pe = symbol[-2:]
             otm_symbols_list = []
             if ce_pe == 'CE':
+                if strike < atm_strike:
+                    # Reduce hedging cost for itm options
+                    strike = atm_strike
+                    symbol, symbol_token = self.kite_functions.get_options_symbol_and_token(underlying_name, atm_strike, 'CE')
                 otm_strike = strike + starting_distance
                 for _ in range(20):
                     nf_bnf_symbol_ce, bnf_token_ce = self.kite_functions.get_options_symbol_and_token(underlying_name, otm_strike, 'CE')
@@ -681,6 +691,10 @@ class straddles:
                     otm_strike += strike_difference
             
             elif ce_pe == 'PE':
+                if strike > atm_strike:
+                    # Reduce hedging cost for itm options
+                    strike = atm_strike
+                    symbol, symbol_token = self.kite_functions.get_options_symbol_and_token(underlying_name, atm_strike, 'PE')
                 otm_strike = strike - starting_distance
                 for _ in range(20):
                     nf_bnf_symbol_pe, bnf_token_ce = self.kite_functions.get_options_symbol_and_token(underlying_name, otm_strike, 'PE')
