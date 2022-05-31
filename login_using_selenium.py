@@ -1,6 +1,7 @@
 import traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -42,7 +43,8 @@ def login_using_selenium():
         pin.send_keys(kite_pin)
 
         #Click on Continue
-        driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div[1]/div/div/div/form/div[3]/button').click()
+        # driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div[1]/div/div/div/form/div[3]/button').click()
+        pin.send_keys(Keys.RETURN)
 
         #Store the Cookies and enctoken
         time.sleep(3)
