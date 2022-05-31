@@ -20,7 +20,7 @@ def login_using_selenium():
 
         driver = webdriver.Chrome(service=s, options=options)
         driver.get('https://kite.zerodha.com/')
-        driver.implicitly_wait(5)
+        driver.implicitly_wait(25)
         time.sleep(5)
 
         #Find User ID and Password input

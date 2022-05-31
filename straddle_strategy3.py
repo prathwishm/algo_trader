@@ -52,6 +52,7 @@ class straddles:
 
         self.nf_9_16_qty = 100
         self.nf_9_16_expiry_qty = 100
+        self.bnf_9_16_expiry_qty = 50
         self.bnf_9_20_qty = 50
         self.bnf_10_05_qty  =50
         self.nf_9_40_qty = 100
@@ -74,6 +75,7 @@ class straddles:
 
         self.nf_9_16_dict = {}
         self.nf_9_16_expiry_dict = {}
+        self.bnf_9_16_expiry_dict = {}
         self.bnf_9_20_dict = {}
         self.bnf_10_05_dict  = {}
         self.nf_9_40_dict = {}
@@ -82,6 +84,7 @@ class straddles:
         self.bnf_11_45_dict = {}
         self.nf_11_30_dict = {}
         self.bnf_13_20_dict = {}
+        self.exit_11_44_done = False
         self.exit_12_44_done = False
         self.exit_14_55_done = False
         self.exit_15_00_done = False
@@ -165,7 +168,9 @@ class straddles:
                         ce_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=bnf_symbol_ce, buy_sell="buy", trigger_price= trigger_price_bnf, price = trigger_price_bnf +40, quantity=qty)
                         if ce_sl_order_id!= -1:
                             self.sl_order_id_list.append(ce_sl_order_id)
-                            if current_dt.hour == 13 and current_dt.minute in [19, 20]:
+                            if current_dt.hour == 9 and current_dt.minute == 16:
+                                self.bnf_9_16_expiry_dict[bnf_symbol_ce] = ce_sl_order_id
+                            elif current_dt.hour == 13 and current_dt.minute in [19, 20]:
                                 self.bnf_13_20_dict[bnf_symbol_ce] = ce_sl_order_id
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[ce_sl_order_id] = hedge_symbol_ce
@@ -182,7 +187,9 @@ class straddles:
                         pe_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=bnf_symbol_pe, buy_sell="buy", trigger_price= trigger_price_bnf, price = trigger_price_bnf +40, quantity=qty)
                         if pe_sl_order_id!= -1:
                             self.sl_order_id_list.append(pe_sl_order_id)
-                            if current_dt.hour == 13 and current_dt.minute in [19, 20]:
+                            if current_dt.hour == 9 and current_dt.minute == 16:
+                                self.bnf_9_16_expiry_dict[bnf_symbol_pe] = pe_sl_order_id
+                            elif current_dt.hour == 13 and current_dt.minute in [19, 20]:
                                 self.bnf_13_20_dict[bnf_symbol_pe] = pe_sl_order_id
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[pe_sl_order_id] = hedge_symbol_pe
@@ -285,8 +292,9 @@ class straddles:
 
         if not self.placed_nf_9_16_strangle and self.iso_week_day in [1, 3, 4] and current_dt.hour == 9 and current_dt.minute >=16:
             self.placed_nf_9_16_strangle = True
-            if self.iso_week_day == 4:
+            if self.iso_week_day in [3, 4]:
                 self.short_nifty_straddle(qty=self.nf_9_16_expiry_qty, sl_percent=0.25, strangle = True, strike_distance = 100)
+                self.short_bnf_straddle(qty= self.bnf_9_16_expiry_qty, sl_percent=0.2, strangle = False)
             self.add_nf_strangle_to_watchlist('9_16_strangle', self.nf_9_16_qty)
 
         if not self.placed_bnf_9_20_straddle and current_dt.hour == 9 and (current_dt.minute >=20 or (current_dt.minute >=19 and current_dt.second >=54)):
@@ -324,7 +332,11 @@ class straddles:
             self.placed_bnf_13_20_strangle = True
             self.short_bnf_straddle(qty= self.bnf_13_20_qty, sl_percent=0.25, strangle = True, strike_distance = 200)
 
-        if self.iso_week_day == 4 and not self.exit_12_44_done and current_dt.hour == 12 and current_dt.minute >=44 and current_dt.second >=4:
+        if self.iso_week_day in [3, 4] and not self.exit_11_44_done and current_dt.hour == 11 and current_dt.minute >=44 and current_dt.second >=4:
+            self.exit_11_44_done = True
+            self.cancel_orders_and_exit_position(self.bnf_9_16_expiry_dict, self.bnf_9_16_expiry_qty)
+        
+        if self.iso_week_day in [3, 4] and not self.exit_12_44_done and current_dt.hour == 12 and current_dt.minute >=44 and current_dt.second >=4:
             self.exit_12_44_done = True
             self.cancel_orders_and_exit_position(self.nf_9_16_expiry_dict, self.nf_9_16_expiry_qty)
 
