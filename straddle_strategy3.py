@@ -51,15 +51,15 @@ class straddles:
         self.iso_week_day = datetime.date.today().isoweekday()
 
         self.nf_9_16_qty = 100
-        self.nf_9_16_expiry_qty = 100
-        self.bnf_9_16_expiry_qty = 50
+        self.nf_9_16_expiry_qty = 50
+        self.bnf_9_16_expiry_qty = 25
         self.bnf_9_20_qty = 50
-        self.bnf_10_05_qty  =50
-        self.nf_9_40_qty = 100
-        self.nf_10_45_qty = 100
-        self.bnf_11_15_qty = 50
-        self.bnf_11_45_qty = 50
-        self.nf_11_30_qty = 100
+        self.bnf_10_05_qty  =25
+        self.nf_9_40_qty = 50
+        self.nf_10_45_qty = 50
+        self.bnf_11_15_qty = 25
+        self.bnf_11_45_qty = 25
+        self.nf_11_30_qty = 50
         self.bnf_13_20_qty = 25
 
         # if self.iso_week_day == 1:
@@ -67,11 +67,11 @@ class straddles:
         #     self.bnf_10_05_qty  = 50
         if self.iso_week_day == 2:
             #Tuesday
-            self.bnf_11_15_qty  = 100
+            self.bnf_11_15_qty  = 50
         if self.iso_week_day == 5:
             #Friday
-            self.nf_11_30_qty  = 200
-            self.bnf_11_15_qty  = 75
+            self.nf_11_30_qty  = 100
+            self.bnf_11_15_qty  = 50
 
         self.nf_9_16_dict = {}
         self.nf_9_16_expiry_dict = {}
