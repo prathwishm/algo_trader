@@ -95,9 +95,11 @@ class straddles:
         self.exit_15_15_done = False
         self.exit_15_17_done = False
         self.exit_15_19_done = False
+        self.add_straddle_strangle_to_websocket = False
         self.last_orders_checked_dt = None
         self.buy_hedges_and_increase_quantity = False
         if self.iso_week_day in [3,4]:
+            self.add_straddle_strangle_to_websocket = True
             self.buy_hedges_and_increase_quantity = True
             self.last_orders_checked_dt = datetime.datetime.now()
         self.hedges_dict = {}
@@ -289,6 +291,16 @@ class straddles:
 
         if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 40):
             self.short_options_on_trigger()
+
+        #Add straddles and strangles to websocket so that orders are executed around 9:16:00
+        if self.add_straddle_strangle_to_websocket and current_dt.hour == 9 and current_dt.minute >=15:
+            self.add_straddle_strangle_to_websocket = False
+            nifty_ltp = eval(self.redis.get(str(self.nifty_token)))
+            nf_atm_strike = get_nifty_atm_strike(nifty_ltp)
+            self.add_itm_strangle_to_websocket(atm_strike = nf_atm_strike, distance_from_atm = 100, index = 'NIFTY')
+            banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
+            bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
+            self.add_straddle_to_websocket(bnf_atm_strike, index = 'BANKNIFTY')
 
         if not self.placed_nf_9_16_strangle and self.iso_week_day in [1, 3, 4] and current_dt.hour == 9 and current_dt.minute >=16:
             self.placed_nf_9_16_strangle = True
