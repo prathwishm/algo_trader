@@ -330,7 +330,8 @@ class straddles:
 
         if not self.placed_bnf_13_20_strangle and self.iso_week_day in [1, 2, 3, 4] and current_dt.hour == 13 and current_dt.minute >=20:
             self.placed_bnf_13_20_strangle = True
-            self.short_bnf_straddle(qty= self.bnf_13_20_qty, sl_percent=0.25, strangle = True, strike_distance = 200)
+            #self.short_bnf_straddle(qty= self.bnf_13_20_qty, sl_percent=0.25, strangle = True, strike_distance = 200)
+            self.add_bnf_strangle_to_watchlist(strategy = '13_20_strangle', qty=self.bnf_13_20_qty, sl_percent=0.25)
 
         if self.iso_week_day in [3, 4] and not self.exit_11_44_done and current_dt.hour == 11 and current_dt.minute >=44 and current_dt.second >=4:
             self.exit_11_44_done = True
@@ -630,6 +631,10 @@ class straddles:
                 self.bnf_11_45_dict[symbol] = None
                 strategy_entry_hour = 11
                 strategy_entry_minute = 45
+            elif dt.hour == 13 and dt.minute in [19, 20]:
+                self.bnf_13_20_dict[symbol] = None
+                strategy_entry_hour = 13
+                strategy_entry_minute = 20
             time.sleep(1)
             sl_order_is_placed = False
             for _ in range(5):
@@ -658,6 +663,8 @@ class straddles:
                                     self.bnf_11_15_dict[symbol] = sl_order_id
                                 elif strategy_entry_hour == 11 and strategy_entry_minute == 45:
                                     self.bnf_11_45_dict[symbol] = sl_order_id
+                                elif strategy_entry_hour == 13 and strategy_entry_minute == 20:
+                                    self.bnf_13_20_dict[symbol] = sl_order_id
                                 if self.buy_hedges_and_increase_quantity:
                                     self.hedges_dict[sl_order_id] = hedge_symbol
                             else:
@@ -673,7 +680,7 @@ class straddles:
         try:
             strike, underlying_name = self.kite_functions.get_option_strike_and_underlying_name_from_symbol(symbol)
             if underlying_name == 'BANKNIFTY':
-                starting_distance = 200
+                starting_distance = 400
                 strike_difference = 100
                 banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
                 atm_strike = get_banknifty_atm_strike(banknifty_ltp)
@@ -692,6 +699,8 @@ class straddles:
                     strike = atm_strike
                     symbol, symbol_token = self.kite_functions.get_options_symbol_and_token(underlying_name, atm_strike, 'CE')
                 otm_strike = strike + starting_distance
+                if str(int(otm_strike))[-2] == '5': #fix for itm strikes where atm strike is multiple of 50
+                    otm_strike += 50
                 for _ in range(20):
                     nf_bnf_symbol_ce, bnf_token_ce = self.kite_functions.get_options_symbol_and_token(underlying_name, otm_strike, 'CE')
                     # If symbol is not present in instrument_df stop
@@ -708,6 +717,8 @@ class straddles:
                     strike = atm_strike
                     symbol, symbol_token = self.kite_functions.get_options_symbol_and_token(underlying_name, atm_strike, 'PE')
                 otm_strike = strike - starting_distance
+                if str(int(otm_strike))[-2] == '5': #fix for itm strikes where atm strike is multiple of 50
+                    otm_strike -= 50
                 for _ in range(20):
                     nf_bnf_symbol_pe, bnf_token_ce = self.kite_functions.get_options_symbol_and_token(underlying_name, otm_strike, 'PE')
                     # If symbol is not present in instrument_df stop
