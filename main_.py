@@ -1,4 +1,5 @@
-from login_using_selenium import login_using_selenium
+#from login_using_selenium import login_using_selenium
+from login_using_requests import login_to_kite
 from telegram_bot import telegram_bot_sendtext
 from ticker_service import Ticker_class
 from orders import Class_Orders
@@ -32,8 +33,8 @@ telegram_bot_sendtext('Starting Algo...')
 kite = KiteExt_new()
 
 for _ in range(3):
-    selenium_login_status = login_using_selenium()
-    if selenium_login_status:
+    login_status = login_to_kite()
+    if login_status:
         break
 
 enctoken_modification_time = os.path.getmtime('enctoken.txt')
