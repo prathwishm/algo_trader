@@ -56,9 +56,9 @@ class straddles:
         self.bnf_9_20_qty = 50
         self.bnf_10_05_qty  =25
         self.nf_9_40_qty = 50
-        self.nf_10_45_qty = 50
+        self.nf_10_45_qty = 100
         self.bnf_11_15_qty = 25
-        self.bnf_11_45_qty = 25
+        self.bnf_11_45_qty = 50
         self.nf_11_30_qty = 50
         self.bnf_13_20_qty = 25
 
