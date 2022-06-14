@@ -6,6 +6,12 @@ import time
 import gspread
 from convert_float_to_tick_price import convert_to_tick_price
 from telegram_bot import telegram_bot_sendtext
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler('straddle_strategy3_error.log')
+file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s'))
+logger.addHandler(file_handler)
 
 def get_nifty_atm_strike(ltp):
     diff = ltp % 50
@@ -215,7 +221,8 @@ class straddles:
                     else:
                         telegram_bot_sendtext("BNF straddle PE option sell order is not filled!!!!!")
         except Exception as e:
-            print("Unexpected error while shorting bnf straddle. Error: "+str(e))
+            logger.exception("Unexpected error while shorting bnf straddle. Error: "+str(e))
+            telegram_bot_sendtext("Unexpected error while shorting bnf straddle. Error: "+str(e))
             traceback.print_exc()
 
     
@@ -308,7 +315,7 @@ class straddles:
                     else:
                         telegram_bot_sendtext("NIFTY straddle PE option sell order is not filled!!!!!")
         except Exception as e:
-            print("Unexpected error while shorting nf straddle. Error: "+str(e))
+            logger.exception("Unexpected error while shorting nf straddle. Error: "+str(e))
             telegram_bot_sendtext("Unexpected error while shorting nf straddle. Error: "+str(e))
             traceback.print_exc()
 
@@ -482,18 +489,18 @@ class straddles:
                 symbols_dict['ce_details']['exit_time'] = each_order['exchange_update_timestamp'].split()[1]
                 symbols_dict['ce_details']['sl_hit'] = sl_hit
                 symbols_dict['ce_details']['pnl'] = (symbols_dict['ce_details']['sell_price'] - symbols_dict['ce_details']['buy_price']) * symbols_dict['ce_details']['qty']
-                strategy_data = list(symbols_dict.values())
+                strategy_data = list(symbols_dict['ce_details'].values())
             elif each_order['tradingsymbol'][-2:] == 'PE':
                 symbols_dict['pe_details']['buy_price'] = each_order['average_price']
                 symbols_dict['pe_details']['exit_time'] = each_order['exchange_update_timestamp'].split()[1]
                 symbols_dict['pe_details']['sl_hit'] = sl_hit
                 symbols_dict['pe_details']['pnl'] = (symbols_dict['pe_details']['sell_price'] - symbols_dict['pe_details']['buy_price']) * symbols_dict['pe_details']['qty']
-                strategy_data = list(symbols_dict.values())
+                strategy_data = list(symbols_dict['pe_details'].values())
             self.trade_details_list.append(strategy_data)
+            telegram_bot_sendtext(strategy_data, filter_text = False)
             self.wks.append_row(strategy_data)
-            telegram_bot_sendtext(strategy_data)
         except Exception as e:
-            print("Unexpected error in update_trade_details. Error: "+str(e))
+            logger.exception("Unexpected error in update_trade_details. Error: "+str(e))
             telegram_bot_sendtext("Unexpected error in update_trade_details. Error: "+str(e))
             traceback.print_exc()
 
@@ -572,7 +579,7 @@ class straddles:
                                             'datetime': datetime.datetime.now(), 'opposite_key':strategy + 'ce', 'quantity':qty}
 
         except Exception as e:
-            print("Unexpected error in add_bnf_straddle_to_watchlist. Error: "+str(e))
+            logger.exception("Unexpected error in add_bnf_straddle_to_watchlist. Error: "+str(e))
             telegram_bot_sendtext("Unexpected error in add_bnf_straddle_to_watchlist. Error: "+str(e))
             traceback.print_exc()
 
@@ -596,7 +603,7 @@ class straddles:
                                             'datetime': datetime.datetime.now(), 'opposite_key':strategy + 'ce', 'quantity':qty}
 
         except Exception as e:
-            print("Unexpected error in add_bnf_strangle_to_watchlist. Error: "+str(e))
+            logger.exception("Unexpected error in add_bnf_strangle_to_watchlist. Error: "+str(e))
             telegram_bot_sendtext("Unexpected error in add_bnf_strangle_to_watchlist. Error: "+str(e))
             traceback.print_exc()
 
@@ -621,7 +628,7 @@ class straddles:
                                             'datetime': datetime.datetime.now(), 'opposite_key':strategy + 'ce', 'quantity':qty}
 
         except Exception as e:
-            print("Unexpected error in add_nf_strangle_to_watchlist. Error: "+str(e))
+            logger.exception("Unexpected error in add_nf_strangle_to_watchlist. Error: "+str(e))
             telegram_bot_sendtext("Unexpected error in add_nf_strangle_to_watchlist. Error: "+str(e))
             traceback.print_exc()
 
@@ -658,7 +665,7 @@ class straddles:
             try:
                 self.watchlist.pop(strat_option)
             except Exception as e:
-                print(f"Unexpected error while popping {strat_option} from watchlist. Error: "+str(e))
+                logger.exception(f"Unexpected error while popping {strat_option} from watchlist. Error: "+str(e))
                 telegram_bot_sendtext(f"Unexpected error while popping {strat_option} from watchlist. Error: "+str(e))
                 traceback.print_exc()
 
@@ -835,7 +842,7 @@ class straddles:
             
             return hedge_symbol, hedge_token
         except Exception as e:
-            print(f"Unexpected error while finding hedge for {symbol}. Error: "+str(e))
+            logger.exception(f"Unexpected error while finding hedge for {symbol}. Error: "+str(e))
             telegram_bot_sendtext(f"Unexpected error while finding hedge for {symbol}. Error: "+str(e))
             traceback.print_exc()
             return None, None
