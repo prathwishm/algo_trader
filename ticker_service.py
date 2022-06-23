@@ -45,7 +45,8 @@ class Ticker_class():
             self.websocket_is_open = True
             ws.subscribe(self.tokens)
             ws.set_mode(ws.MODE_FULL,self.tokens)
-            logger.info(f"Successfully connected. Response: {response}")
+            #logger.info(f"Successfully connected. Response: {response}")
+            logger.info(f"Successfully connected to Websocket")
             telegram_bot_sendtext('Successfully Connected to Websocket')
             
         def on_close(ws, code, reason):

@@ -93,3 +93,4 @@ webdriver-manager==3.5.3
 wrapt==1.13.3
 wsproto==1.0.0
 zope.interface==5.4.0
+gspread==5.4.0
