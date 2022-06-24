@@ -13,13 +13,6 @@ file_handler = logging.FileHandler('straddle_strategy3_error.log')
 file_handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s'))
 logger.addHandler(file_handler)
 
-NF_LOT_SIZE = 50
-BNF_LOT_SIZE = 25
-
-CORE_STRATEGY_LOT_MULTIPLIER = 2
-EXPIRY_STRATEGY_LOT_MULTIPLIER = 1
-OTHER_STRATEGY_LOT_MULTIPLIER = 1
-
 MONDAY = 1
 TUESDAY = 2
 WEDNESDAY = 3
@@ -55,6 +48,7 @@ class straddles:
         self.exit_procedure_done = False
         self.nf_bnf_option_tokens = []
         self.watchlist = {}
+        self.target_watchlist = {}
 
         self.nifty_token = kite_func.get_symbol_token('NSE:NIFTY 50')
         self.bank_nifty_token = kite_func.get_symbol_token('NSE:NIFTY BANK')
@@ -82,6 +76,24 @@ class straddles:
         sh = sa.open("algo_tradelog")
         self.wks = sh.worksheet("Prasad")
         self.wks.append_row(['-'])
+
+    def set_target_trigger_price(self, strategy, option_type, sl_order_id, token, qty, target_price, trigger_price, limit_price):
+        try:
+            print(f"Setting target trigger price for {strategy} {option_type}")
+            target_tick_price = convert_to_tick_price(target_price)
+            self.target_watchlist[strategy + option_type] = {
+                'token': token,
+                'order_id': sl_order_id,
+                'target_price': target_tick_price,
+                'limit_price': limit_price,
+                'trigger_price': trigger_price,
+                'datetime': datetime.datetime.now(),
+                'quantity': qty
+            }
+        except Exception as e:
+            logger.exception("Unexpected error while set_target_trigger_price. Error: "+str(e))
+            telegram_bot_sendtext("Unexpected error while set_target_trigger_price. Error: "+str(e))
+            traceback.print_exc()
 
     def short_bnf_straddle(self, strategy, qty, sl_percent=0.25, strangle = False, strike_distance = 200):
         try:
@@ -117,7 +129,8 @@ class straddles:
                 if each_order['order_id'] == ce_order_id:
                     if each_order['status'] == 'COMPLETE':
                         avg_sell_price = each_order['average_price']
-                        trigger_price_bnf = convert_to_tick_price(avg_sell_price + (avg_sell_price * sl_percent))
+                        sl_diff_price = avg_sell_price * sl_percent
+                        trigger_price_bnf = convert_to_tick_price(avg_sell_price + sl_diff_price)
                         print("Placing CE Sl order for BNF at", trigger_price_bnf)
                         ce_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=bnf_symbol_ce, buy_sell="buy", trigger_price= trigger_price_bnf, price = trigger_price_bnf +40, quantity=qty)
                         ce_dict = {'date':str(current_dt.date()),'strategy': strategy,'entry_time':str(current_dt.time()), 'symbol': bnf_symbol_ce,'sell_price': each_order['average_price'], 'qty': each_order['quantity'], 'sl_id': ce_sl_order_id,
@@ -128,6 +141,7 @@ class straddles:
                                 self.trades_dict[strategy] = {}
                             self.trades_dict[strategy][bnf_symbol_ce] = ce_sl_order_id
                             self.trades_dict[strategy]['ce_details'] = ce_dict
+                            self.set_target_trigger_price(strategy, "CE", ce_sl_order_id, bnf_token_ce, qty, sl_diff_price, sl_diff_price * 2, (sl_diff_price * 2) + 40)
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[ce_sl_order_id] = hedge_symbol_ce
                         else:
@@ -138,7 +152,8 @@ class straddles:
                 if each_order['order_id'] == pe_order_id:
                     if each_order['status'] == 'COMPLETE':
                         avg_sell_price = each_order['average_price']
-                        trigger_price_bnf = convert_to_tick_price(avg_sell_price + (avg_sell_price * sl_percent))
+                        sl_diff_price = avg_sell_price * sl_percent
+                        trigger_price_bnf = convert_to_tick_price(avg_sell_price + sl_diff_price)
                         print("Placing PE Sl order for BNF at", trigger_price_bnf)
                         pe_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=bnf_symbol_pe, buy_sell="buy", trigger_price= trigger_price_bnf, price = trigger_price_bnf +40, quantity=qty)
                         pe_dict = {'date':str(current_dt.date()), 'strategy': strategy,'entry_time':str(current_dt.time()), 'symbol': bnf_symbol_pe,'sell_price': each_order['average_price'], 'qty': each_order['quantity'], 'sl_id': pe_sl_order_id,
@@ -149,6 +164,7 @@ class straddles:
                                 self.trades_dict[strategy] = {}
                             self.trades_dict[strategy][bnf_symbol_pe] = pe_sl_order_id
                             self.trades_dict[strategy]['pe_details'] = pe_dict
+                            self.set_target_trigger_price(strategy, "PE", pe_sl_order_id, bnf_token_pe, qty, sl_diff_price, sl_diff_price * 2, (sl_diff_price * 2) + 40)
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[pe_sl_order_id] = hedge_symbol_pe
                         else:
@@ -160,7 +176,6 @@ class straddles:
             telegram_bot_sendtext("Unexpected error while shorting bnf straddle. Error: "+str(e))
             traceback.print_exc()
 
-    
     def short_nifty_straddle(self, strategy, qty, sl_percent=0.4, strangle = False, strike_distance = 100):
         try:
             #nifty_ltp = self.kite.ltp('NSE:NIFTY 50')['NSE:NIFTY 50']['last_price']
@@ -194,7 +209,8 @@ class straddles:
                 if each_order['order_id'] == ce_order_id:
                     if each_order['status'] == 'COMPLETE':
                         avg_sell_price = each_order['average_price']
-                        trigger_price_nf = convert_to_tick_price(avg_sell_price + (avg_sell_price * sl_percent))
+                        sl_diff_price = avg_sell_price * sl_percent
+                        trigger_price_nf = convert_to_tick_price(avg_sell_price + sl_diff_price)
                         print("Placing CE Sl order for NF at", trigger_price_nf)
 
                         ce_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=nf_symbol_ce, buy_sell="buy", trigger_price= trigger_price_nf, price = trigger_price_nf + 20, quantity=qty)
@@ -206,6 +222,7 @@ class straddles:
                                 self.trades_dict[strategy] = {}
                             self.trades_dict[strategy][nf_symbol_ce] = ce_sl_order_id
                             self.trades_dict[strategy]['ce_details'] = ce_dict
+                            self.set_target_trigger_price(strategy, "CE", ce_sl_order_id, nf_token_ce, qty, sl_diff_price, sl_diff_price * 2, (sl_diff_price * 2) + 20)
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[ce_sl_order_id] = hedge_symbol_ce
                         else:
@@ -216,7 +233,8 @@ class straddles:
                 if each_order['order_id'] == pe_order_id:
                     if each_order['status'] == 'COMPLETE':
                         avg_sell_price = each_order['average_price']
-                        trigger_price_nf = convert_to_tick_price(avg_sell_price + (avg_sell_price * sl_percent))
+                        sl_diff_price = avg_sell_price * sl_percent
+                        trigger_price_nf = convert_to_tick_price(avg_sell_price + sl_diff_price)
                         print("Placing PE Sl order for NF at", trigger_price_nf)
                         pe_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=nf_symbol_pe, buy_sell="buy", trigger_price= trigger_price_nf, price = trigger_price_nf + 20, quantity=qty)
                         pe_dict = {'date':str(current_dt.date()), 'strategy': strategy,'entry_time':str(current_dt.time()), 'symbol': nf_symbol_pe,'sell_price': each_order['average_price'], 'qty': each_order['quantity'], 'sl_id': pe_sl_order_id,
@@ -227,6 +245,7 @@ class straddles:
                                 self.trades_dict[strategy] = {}
                             self.trades_dict[strategy][nf_symbol_pe] = pe_sl_order_id
                             self.trades_dict[strategy]['pe_details'] = pe_dict
+                            self.set_target_trigger_price(strategy, "PE", pe_sl_order_id, nf_token_pe, qty, sl_diff_price, sl_diff_price * 2, (sl_diff_price * 2) + 20)
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[pe_sl_order_id] = hedge_symbol_pe
                         else:
@@ -237,77 +256,6 @@ class straddles:
             logger.exception("Unexpected error while shorting nf straddle. Error: "+str(e))
             telegram_bot_sendtext("Unexpected error while shorting nf straddle. Error: "+str(e))
             traceback.print_exc()
-
-    
-    def main(self):
-        current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
-
-        if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 40):
-            self.short_options_on_trigger()
-
-        #Add straddles and strangles to websocket so that orders are executed around 9:16:00
-        if self.add_straddle_strangle_to_websocket and current_dt.hour == 9 and current_dt.minute >=15:
-            self.add_straddle_strangle_to_websocket = False
-            nifty_ltp = eval(self.redis.get(str(self.nifty_token)))
-            nf_atm_strike = get_nifty_atm_strike(nifty_ltp)
-            self.add_itm_strangle_to_websocket(atm_strike = nf_atm_strike, distance_from_atm = 100, index = 'NIFTY')
-            banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
-            bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
-            self.add_straddle_to_websocket(bnf_atm_strike, index = 'BANKNIFTY')
-
-        for trades_item in self.trades_list:
-            execution_day_details = [execution_days for execution_days in trades_item['execution_days'] if execution_days['day'] == self.iso_week_day]
-            if len(execution_day_details) > 0:
-                execution_day_details = execution_day_details[0]
-                quantity_specified = trades_item['quantity'] * execution_day_details['quantity_multiplier']
-                if trades_item['strategy_name'] not in self.trades_placed and current_dt.hour == trades_item['entry_time'][0] and current_dt.minute >= trades_item['entry_time'][1] and (current_dt.second >= trades_item['entry_time'][2] or current_dt.minute > trades_item['entry_time'][1]):
-                    self.trades_placed.append(trades_item['strategy_name'])
-                    if trades_item['strategy_type'] == 'add_nf_strangle_to_watchlist':
-                        self.add_nf_strangle_to_watchlist(trades_item['strategy_name'], quantity_specified)
-                    if trades_item['strategy_type'] == 'short_nifty_straddle':
-                        self.short_nifty_straddle(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=trades_item['sl_percent'], strangle = trades_item['strangle'], strike_distance = trades_item['strike_distance'])
-                    if trades_item['strategy_type'] == 'short_bnf_straddle':
-                        self.short_bnf_straddle(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=0.2, strangle = False)
-                    if trades_item['strategy_type'] == 'add_bnf_straddle_to_watchlist':
-                        self.add_bnf_straddle_to_watchlist(trades_item['strategy_name'], quantity_specified)
-                    if trades_item['strategy_type'] == 'add_bnf_strangle_to_watchlist':
-                        self.add_bnf_strangle_to_watchlist(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=trades_item['sl_percent'])
-            
-                if trades_item['strategy_name'] in self.trades_placed and 'exit_time' in execution_day_details:
-                    if trades_item['strategy_name'] not in self.trades_exited and current_dt.hour == execution_day_details['exit_time'][0] and current_dt.minute >= execution_day_details['exit_time'][1] and (current_dt.second >= execution_day_details['exit_time'][2] or current_dt.minute > execution_day_details['exit_time'][1]):
-                        self.trades_exited.append(trades_item['strategy_name'])
-                        self.cancel_orders_and_exit_position(self.trades_dict['strategy_name'], quantity_specified)
-        
-        if not self.exit_procedure_done and current_dt.hour == 15 and current_dt.minute >=19:
-            self.exit_procedure_done = True
-            print("Exiting all placed orders")
-
-            for each_order in self.kite.orders():
-                if each_order['order_id'] in self.sl_order_id_list:
-                    if each_order['status'] == 'TRIGGER PENDING':
-                        self.orders_obj.cancel_order(each_order['order_id'])
-
-            for each_pos in self.kite.positions()['day']:
-                if each_pos['tradingsymbol'] in self.traded_symbols_list and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0:
-                    exit_quantity = abs(each_pos['quantity'])
-                    exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
-                    if exit_quantity > 0:
-                        self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity)
-
-        if self.buy_hedges_and_increase_quantity:
-            dt_now = datetime.datetime.now()
-            time_difference = dt_now - self.last_orders_checked_dt
-            if time_difference.seconds >= 6:
-                self.last_orders_checked_dt = dt_now
-                for each_order in self.kite.orders():
-                    if each_order['order_id'] in self.hedges_dict.keys():
-                        if each_order['status'] in ['COMPLETE', 'CANCELLED'] and each_order['order_id'] not in self.hedge_exit_sl_order_id_list:
-                            #if each_order['filled_quantity'] == each_order['quantity']:
-                            self.hedge_exit_sl_order_id_list.append(each_order['order_id'])
-                            qty = each_order['quantity']
-                            hedge_symbol = self.hedges_dict[each_order['order_id']]
-                            self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= 'sell', quantity=qty, use_limit_order = False)
-
 
     def cancel_orders_and_exit_position(self, symbols_dict, qty):
         exited_symbols = [] #Used to prevent exiting of same symbol from a different strategy
@@ -335,7 +283,6 @@ class straddles:
         for each_order in self.kite.orders():
             if each_order['order_id'] in exited_order_ids:
                 self.update_trade_details(each_order, symbols_dict, sl_hit = False)
-
 
     def update_trade_details(self, each_order, symbols_dict, sl_hit = False):
         try:
@@ -407,7 +354,6 @@ class straddles:
             self.ticker.subscribe_tokens(tokens_list)
             time.sleep(5)
 
-
     def add_bnf_straddle_to_watchlist(self, strategy, qty):
         try:
             #banknifty_ltp = self.kite.ltp('NSE:NIFTY BANK')['NSE:NIFTY BANK']['last_price']
@@ -462,7 +408,6 @@ class straddles:
             logger.exception("Unexpected error in add_bnf_strangle_to_watchlist. Error: "+str(e))
             telegram_bot_sendtext("Unexpected error in add_bnf_strangle_to_watchlist. Error: "+str(e))
             traceback.print_exc()
-
 
     def add_nf_strangle_to_watchlist(self, strategy, qty):
         try:
@@ -525,7 +470,27 @@ class straddles:
                 telegram_bot_sendtext(f"Unexpected error while popping {strat_option} from watchlist. Error: "+str(e))
                 traceback.print_exc()
 
-    
+    def check_for_target_hits(self):
+        list_of_tokens_to_pop_from_target_watchlist = []
+        for strategy_option, values_dict in self.target_watchlist.items():
+            for each_order in self.kite.orders():
+                if each_order['status'] != 'TRIGGER PENDING':
+                    list_of_tokens_to_pop_from_target_watchlist.append(strategy_option)
+                elif each_order['order_id'] == values_dict['order_id']:
+                    ltp_data = list(map(eval, self.redis.lrange(str(values_dict['token'])+'_data', -25, -1)))
+                    for tick_list in ltp_data:
+                        if tick_list[1] < values_dict['target_price'] and tick_list[0] > values_dict['datetime']:
+                            list_of_tokens_to_pop_from_target_watchlist.append(strategy_option)
+                            self.orders_obj.modify_sl_order(values_dict['order_id'], values_dict['quantity'], values_dict['limit_price'], values_dict['trigger_price'])
+                            break
+
+        for strat_option in list_of_tokens_to_pop_from_target_watchlist:
+            try:
+                self.target_watchlist.pop(strat_option)
+            except Exception as e:
+                logger.exception(f"Unexpected error while popping {strat_option} from target_watchlist. Error: "+str(e))
+                telegram_bot_sendtext(f"Unexpected error while popping {strat_option} from target_watchlist. Error: "+str(e))
+                traceback.print_exc()
 
     def short_option_and_place_sl(self, strategy, symbol, sl_price, qty, dt):
             if self.buy_hedges_and_increase_quantity:
@@ -580,7 +545,6 @@ class straddles:
 
             if not sl_order_is_placed:
                 telegram_bot_sendtext(f"{symbol} option sell order is not filled!!!!!")
-
 
     def get_hedge_symbol(self, symbol):
         try:
@@ -661,3 +625,75 @@ class straddles:
             telegram_bot_sendtext(f"Unexpected error while finding hedge for {symbol}. Error: "+str(e))
             traceback.print_exc()
             return None, None
+ 
+    def main(self):
+        current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
+
+        if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 40):
+            self.short_options_on_trigger()
+
+        if current_dt.hour < 15 or (current_dt.hour == 15 and current_dt.minute < 15):
+            self.check_for_target_hits()
+
+        #Add straddles and strangles to websocket so that orders are executed around 9:16:00
+        if self.add_straddle_strangle_to_websocket and current_dt.hour == 9 and current_dt.minute >=15:
+            self.add_straddle_strangle_to_websocket = False
+            nifty_ltp = eval(self.redis.get(str(self.nifty_token)))
+            nf_atm_strike = get_nifty_atm_strike(nifty_ltp)
+            self.add_itm_strangle_to_websocket(atm_strike = nf_atm_strike, distance_from_atm = 100, index = 'NIFTY')
+            banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
+            bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
+            self.add_straddle_to_websocket(bnf_atm_strike, index = 'BANKNIFTY')
+
+        for trades_item in self.trades_list:
+            execution_day_details = [execution_days for execution_days in trades_item['execution_days'] if execution_days['day'] == self.iso_week_day]
+            if len(execution_day_details) > 0:
+                execution_day_details = execution_day_details[0]
+                quantity_specified = trades_item['quantity'] * execution_day_details['quantity_multiplier']
+                if trades_item['strategy_name'] not in self.trades_placed and current_dt.hour == trades_item['entry_time'][0] and current_dt.minute >= trades_item['entry_time'][1] and (current_dt.second >= trades_item['entry_time'][2] or current_dt.minute > trades_item['entry_time'][1]):
+                    self.trades_placed.append(trades_item['strategy_name'])
+                    if trades_item['strategy_type'] == 'add_nf_strangle_to_watchlist':
+                        self.add_nf_strangle_to_watchlist(trades_item['strategy_name'], quantity_specified)
+                    if trades_item['strategy_type'] == 'short_nifty_straddle':
+                        self.short_nifty_straddle(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=trades_item['sl_percent'], strangle = trades_item['strangle'], strike_distance = trades_item['strike_distance'])
+                    if trades_item['strategy_type'] == 'short_bnf_straddle':
+                        self.short_bnf_straddle(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=0.2, strangle = False)
+                    if trades_item['strategy_type'] == 'add_bnf_straddle_to_watchlist':
+                        self.add_bnf_straddle_to_watchlist(trades_item['strategy_name'], quantity_specified)
+                    if trades_item['strategy_type'] == 'add_bnf_strangle_to_watchlist':
+                        self.add_bnf_strangle_to_watchlist(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=trades_item['sl_percent'])
+            
+                if trades_item['strategy_name'] in self.trades_placed and 'exit_time' in execution_day_details:
+                    if trades_item['strategy_name'] not in self.trades_exited and current_dt.hour == execution_day_details['exit_time'][0] and current_dt.minute >= execution_day_details['exit_time'][1] and (current_dt.second >= execution_day_details['exit_time'][2] or current_dt.minute > execution_day_details['exit_time'][1]):
+                        self.trades_exited.append(trades_item['strategy_name'])
+                        self.cancel_orders_and_exit_position(self.trades_dict['strategy_name'], quantity_specified)
+        
+        if not self.exit_procedure_done and current_dt.hour == 15 and current_dt.minute >=19:
+            self.exit_procedure_done = True
+            print("Exiting all placed orders")
+
+            for each_order in self.kite.orders():
+                if each_order['order_id'] in self.sl_order_id_list:
+                    if each_order['status'] == 'TRIGGER PENDING':
+                        self.orders_obj.cancel_order(each_order['order_id'])
+
+            for each_pos in self.kite.positions()['day']:
+                if each_pos['tradingsymbol'] in self.traded_symbols_list and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0:
+                    exit_quantity = abs(each_pos['quantity'])
+                    exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
+                    if exit_quantity > 0:
+                        self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity)
+
+        if self.buy_hedges_and_increase_quantity:
+            dt_now = datetime.datetime.now()
+            time_difference = dt_now - self.last_orders_checked_dt
+            if time_difference.seconds >= 6:
+                self.last_orders_checked_dt = dt_now
+                for each_order in self.kite.orders():
+                    if each_order['order_id'] in self.hedges_dict.keys():
+                        if each_order['status'] in ['COMPLETE', 'CANCELLED'] and each_order['order_id'] not in self.hedge_exit_sl_order_id_list:
+                            #if each_order['filled_quantity'] == each_order['quantity']:
+                            self.hedge_exit_sl_order_id_list.append(each_order['order_id'])
+                            qty = each_order['quantity']
+                            hedge_symbol = self.hedges_dict[each_order['order_id']]
+                            self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= 'sell', quantity=qty, use_limit_order = False)
