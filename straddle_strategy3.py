@@ -5,6 +5,7 @@ import time
 import gspread
 from convert_float_to_tick_price import convert_to_tick_price
 from telegram_bot import telegram_bot_sendtext
+from straddle_strategy3_list import trades_list
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -41,284 +42,6 @@ def get_banknifty_atm_strike(ltp):
         atm_strike = ltp - diff
     return atm_strike
 
-trades_list = [
-    {
-        'strategy_name': '9_16_strangle',
-        'strategy_type': 'add_nf_strangle_to_watchlist',
-        'entry_time': [20, 16, 0],
-        'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER,
-        'execution_days': [{
-            'day': MONDAY,
-            'exit_time': [15, 15, 4],
-            'hedge_multiplier': 1
-        }, {
-            'day': WEDNESDAY,
-            'exit_time': [15, 15, 4],
-            'hedge_multiplier': 1
-        }, {
-            'day': THRUSDAY,
-            'exit_time': [15, 15, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': 'bnf_9_16_expiry_strangle',
-        'strategy_type': 'short_bnf_straddle',
-        'entry_time': [9, 16, 0],
-        'exit_time': [11, 44, 4],
-        'quantity': BNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.25,
-        'strangle': True,
-        'strike_distance': 100,
-        'execution_days': [{
-            'day': MONDAY,
-            'hedge_multiplier': 1
-        }, {
-            'day': WEDNESDAY,
-            'exit_time': [11, 44, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': 'nf_9_16_expiry_strangle',
-        'strategy_type': 'short_nifty_straddle',
-        'entry_time': [9, 16, 0],
-        'quantity': NF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.2,
-        'strangle': False,
-        'execution_days': [{
-            'day': THRUSDAY,
-            'exit_time': [12, 44, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': '9_20_straddle',
-        'strategy_type': 'add_bnf_straddle_to_watchlist',
-        'entry_time': [9, 19, 54],
-        'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER,
-        'execution_days': [{
-            'day': MONDAY,
-            'exit_time': [14, 54, 54],
-            'hedge_multiplier': 1
-        },{
-            'day': TUESDAY,
-            'exit_time': [14, 54, 54],
-            'hedge_multiplier': 1
-        },{
-            'day': WEDNESDAY,
-            'exit_time': [14, 54, 54],
-            'hedge_multiplier': 1
-        },{
-            'day': THRUSDAY,
-            'exit_time': [14, 54, 54],
-            'hedge_multiplier': 1
-        },{
-            'day': FRIDAY,
-            'exit_time': [14, 54, 54],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': 'nf_9_40_strangle',
-        'strategy_type': 'short_nifty_straddle',
-        'entry_time': [9, 39, 52],
-        'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.35,
-        'strangle': True,
-        'strike_distance': 100,
-        'execution_days': [{
-            'day': MONDAY,
-            'exit_time': [15, 8, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': TUESDAY,
-            'exit_time': [15, 8, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': WEDNESDAY,
-            'exit_time': [15, 8, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': THRUSDAY,
-            'exit_time': [15, 8, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': FRIDAY,
-            'exit_time': [15, 8, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': '10_05_strangle',
-        'strategy_type': 'add_bnf_strangle_to_watchlist',
-        'entry_time': [10, 5, 0],
-        'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.2,
-        'execution_days': [{
-            'day': MONDAY,
-            'exit_time': [15, 5, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': TUESDAY,
-            'exit_time': [15, 5, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': WEDNESDAY,
-            'exit_time': [15, 5, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': THRUSDAY,
-            'exit_time': [15, 5, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': FRIDAY,
-            'exit_time': [15, 5, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': 'nf_10_45_strangle',
-        'strategy_type': 'short_nifty_straddle',
-        'entry_time': [10, 44, 52],
-        'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.28,
-        'strangle': True,
-        'strike_distance': 50,
-        'execution_days': [{
-            'day': MONDAY,
-            'exit_time': [15, 10, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': TUESDAY,
-            'exit_time': [15, 10, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': WEDNESDAY,
-            'exit_time': [15, 10, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': THRUSDAY,
-            'exit_time': [15, 10, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': FRIDAY,
-            'exit_time': [15, 10, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': '11_15_strangle',
-        'strategy_type': 'add_bnf_strangle_to_watchlist',
-        'entry_time': [11, 15, 0],
-        'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.18,
-        'execution_days': [{
-            'day': MONDAY,
-            'exit_time': [15, 0, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': TUESDAY,
-            'exit_time': [15, 0, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': WEDNESDAY,
-            'exit_time': [15, 0, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': THRUSDAY,
-            'exit_time': [15, 0, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': FRIDAY,
-            'exit_time': [15, 0, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': 'nf_11_30_strangle',
-        'strategy_type': 'short_nifty_straddle',
-        'entry_time': [11, 29, 52],
-        'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.25,
-        'strangle': True,
-        'strike_distance': 50,
-        'execution_days': [{
-            'day': MONDAY,
-            'exit_time': [15, 17, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': TUESDAY,
-            'exit_time': [15, 17, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': WEDNESDAY,
-            'exit_time': [15, 17, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': THRUSDAY,
-            'exit_time': [15, 17, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': FRIDAY,
-            'exit_time': [15, 17, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': '11_45_strangle',
-        'strategy_type': 'add_bnf_strangle_to_watchlist',
-        'entry_time': [11, 44, 54],
-        'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.20,
-        'execution_days': [{
-            'day': MONDAY,
-            'exit_time': [15, 12, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': TUESDAY,
-            'exit_time': [15, 12, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': WEDNESDAY,
-            'exit_time': [15, 12, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': THRUSDAY,
-            'exit_time': [15, 12, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': FRIDAY,
-            'exit_time': [15, 12, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-    {
-        'strategy_name': '13_20_strangle',
-        'strategy_type': 'add_bnf_strangle_to_watchlist',
-        'entry_time': [13, 20, 0],
-        'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.25,
-        'execution_days': [{
-            'day': MONDAY,
-            'exit_time': [15, 18, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': TUESDAY,
-            'exit_time': [15, 18, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': WEDNESDAY,
-            'exit_time': [15, 18, 4],
-            'hedge_multiplier': 1
-        },{
-            'day': THRUSDAY,
-            'exit_time': [15, 18, 4],
-            'hedge_multiplier': 1
-        }],
-    },
-]
-
 class straddles:
     def __init__(self, kite, kite_func, orders_obj, redis_obj, ticker, margin):
         self.kite = kite
@@ -341,18 +64,7 @@ class straddles:
         self.trades_list = trades_list
         self.trades_placed = []
         self.trades_exited = []
-        self.trades_dist = {}
-
-        self.bnf_11_15_qty = 25
-        self.nf_11_30_qty = 50
-
-        if self.iso_week_day == 2:
-            #Tuesday
-            self.bnf_11_15_qty  = 50
-        if self.iso_week_day == 5:
-            #Friday
-            self.nf_11_30_qty  = 100
-            self.bnf_11_15_qty  = 50
+        self.trades_dict = {}
 
         self.exit_15_19_done = False
         self.add_straddle_strangle_to_websocket = False
@@ -412,8 +124,10 @@ class straddles:
                                     'sl_price':trigger_price_bnf,'buy_price': None, 'exit_time': None,'sl_hit':False}
                         if ce_sl_order_id!= -1:
                             self.sl_order_id_list.append(ce_sl_order_id)
-                            self.trades_dist[strategy][bnf_symbol_ce] = ce_sl_order_id
-                            self.trades_dist[strategy]['ce_details'] = ce_dict
+                            if strategy not in self.trades_dict: 
+                                self.trades_dict[strategy] = {}
+                            self.trades_dict[strategy][bnf_symbol_ce] = ce_sl_order_id
+                            self.trades_dict[strategy]['ce_details'] = ce_dict
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[ce_sl_order_id] = hedge_symbol_ce
                         else:
@@ -431,8 +145,10 @@ class straddles:
                                     'sl_price':trigger_price_bnf,'buy_price': None, 'exit_time': None,'sl_hit':False}
                         if pe_sl_order_id!= -1:
                             self.sl_order_id_list.append(pe_sl_order_id)
-                            self.trades_dist[strategy][bnf_symbol_pe] = pe_sl_order_id
-                            self.trades_dist[strategy]['pe_details'] = pe_dict
+                            if strategy not in self.trades_dict: 
+                                self.trades_dict[strategy] = {}
+                            self.trades_dict[strategy][bnf_symbol_pe] = pe_sl_order_id
+                            self.trades_dict[strategy]['pe_details'] = pe_dict
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[pe_sl_order_id] = hedge_symbol_pe
                         else:
@@ -486,8 +202,10 @@ class straddles:
                                     'sl_price':trigger_price_nf,'buy_price': None, 'exit_time': None,'sl_hit':False}
                         if ce_sl_order_id!= -1:
                             self.sl_order_id_list.append(ce_sl_order_id)
-                            self.trades_dist[strategy][nf_symbol_ce] = ce_sl_order_id
-                            self.trades_dist[strategy]['ce_details'] = ce_dict
+                            if strategy not in self.trades_dict: 
+                                self.trades_dict[strategy] = {}
+                            self.trades_dict[strategy][nf_symbol_ce] = ce_sl_order_id
+                            self.trades_dict[strategy]['ce_details'] = ce_dict
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[ce_sl_order_id] = hedge_symbol_ce
                         else:
@@ -505,8 +223,10 @@ class straddles:
                                     'sl_price':trigger_price_nf,'buy_price': None, 'exit_time': None,'sl_hit':False}
                         if pe_sl_order_id!= -1:
                             self.sl_order_id_list.append(pe_sl_order_id)
-                            self.trades_dist[strategy][nf_symbol_pe] = pe_sl_order_id
-                            self.trades_dist[strategy]['pe_details'] = pe_dict
+                            if strategy not in self.trades_dict: 
+                                self.trades_dict[strategy] = {}
+                            self.trades_dict[strategy][nf_symbol_pe] = pe_sl_order_id
+                            self.trades_dict[strategy]['pe_details'] = pe_dict
                             if self.buy_hedges_and_increase_quantity:
                                 self.hedges_dict[pe_sl_order_id] = hedge_symbol_pe
                         else:
@@ -539,26 +259,29 @@ class straddles:
             execution_day_details = [execution_days for execution_days in trades_item['execution_days'] if execution_days['day'] == self.iso_week_day]
             if len(execution_day_details) > 0:
                 execution_day_details = execution_day_details[0]
+                quantity_specified = trades_item['quantity'] * execution_day_details['quantity_multiplier']
                 if trades_item['strategy_name'] not in self.trades_placed and current_dt.hour == trades_item['entry_time'][0] and current_dt.minute >= trades_item['entry_time'][1] and (current_dt.second >= trades_item['entry_time'][2] or current_dt.minute > trades_item['entry_time'][1]):
                     self.trades_placed.append(trades_item['strategy_name'])
                     if trades_item['strategy_type'] == 'add_nf_strangle_to_watchlist':
-                        self.add_nf_strangle_to_watchlist(trades_item['strategy_name'], trades_item['quantity'])
+                        self.add_nf_strangle_to_watchlist(trades_item['strategy_name'], quantity_specified)
                     if trades_item['strategy_type'] == 'short_nifty_straddle':
-                        self.short_nifty_straddle(strategy = trades_item['strategy_name'], qty = trades_item['quantity'], sl_percent=trades_item['sl_percent'], strangle = trades_item['strangle'], strike_distance = trades_item['strike_distance'])
+                        self.short_nifty_straddle(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=trades_item['sl_percent'], strangle = trades_item['strangle'], strike_distance = trades_item['strike_distance'])
                     if trades_item['strategy_type'] == 'short_bnf_straddle':
-                        self.short_bnf_straddle(strategy = trades_item['strategy_name'], qty = trades_item['quantity'], sl_percent=0.2, strangle = False)
+                        self.short_bnf_straddle(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=0.2, strangle = False)
                     if trades_item['strategy_type'] == 'add_bnf_straddle_to_watchlist':
-                        self.add_bnf_straddle_to_watchlist(trades_item['strategy_name'], trades_item['quantity'])
+                        self.add_bnf_straddle_to_watchlist(trades_item['strategy_name'], quantity_specified)
                     if trades_item['strategy_type'] == 'add_bnf_strangle_to_watchlist':
-                        self.add_bnf_strangle_to_watchlist(strategy = trades_item['strategy_name'], qty = trades_item['quantity'], sl_percent=trades_item['sl_percent'])
+                        self.add_bnf_strangle_to_watchlist(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=trades_item['sl_percent'])
             
                 if trades_item['strategy_name'] in self.trades_placed and 'exit_time' in execution_day_details:
                     if trades_item['strategy_name'] not in self.trades_exited and current_dt.hour == execution_day_details['exit_time'][0] and current_dt.minute >= execution_day_details['exit_time'][1] and (current_dt.second >= execution_day_details['exit_time'][2] or current_dt.minute > execution_day_details['exit_time'][1]):
                         self.trades_exited.append(trades_item['strategy_name'])
-                        self.cancel_orders_and_exit_position(self.trades_dist['strategy_name'], trades_item['quantity'])
+                        self.cancel_orders_and_exit_position(self.trades_dict['strategy_name'], quantity_specified)
         
         if not self.exit_procedure_done and current_dt.hour == 15 and current_dt.minute >=19:
             self.exit_procedure_done = True
+            print("Exiting all placed orders")
+
             for each_order in self.kite.orders():
                 if each_order['order_id'] in self.sl_order_id_list:
                     if each_order['status'] == 'TRIGGER PENDING':
@@ -818,35 +541,10 @@ class straddles:
             order_id = self.orders_obj.place_market_order(symbol = symbol, buy_sell= "sell", quantity=qty)
             current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
             self.traded_symbols_list.append(symbol)
-            strategy_entry_hour = None
-            strategy_entry_minute = None
             sl_points = 160
-            if dt.hour == 9 and dt.minute == 16:
-                self.trades_dist[strategy][symbol] = None
-                strategy_entry_hour = 9
-                strategy_entry_minute = 16
-            elif dt.hour == 9 and dt.minute in [19, 20]:
-                self.trades_dist[strategy][symbol] = None
-                strategy_entry_hour = 9
-                strategy_entry_minute = 20
-                sl_points = 80
-            elif dt.hour == 10 and dt.minute in [4, 5]:
-                self.trades_dist[strategy][symbol] = None
-                strategy_entry_hour = 10
-                strategy_entry_minute = 5
-                sl_points = 100
-            elif dt.hour == 11 and dt.minute in [14, 15]:
-                self.trades_dist[strategy][symbol] = None
-                strategy_entry_hour = 11
-                strategy_entry_minute = 15
-            elif dt.hour == 11 and dt.minute in [44, 45]:
-                self.trades_dist[strategy][symbol] = None
-                strategy_entry_hour = 11
-                strategy_entry_minute = 45
-            elif dt.hour == 13 and dt.minute in [19, 20]:
-                self.trades_dist[strategy][symbol] = None
-                strategy_entry_hour = 13
-                strategy_entry_minute = 20
+            if strategy not in self.trades_dict: 
+                self.trades_dict[strategy] = {}
+            self.trades_dict[strategy][symbol] = None
             time.sleep(1)
             sl_order_is_placed = False
             for _ in range(5):
@@ -859,7 +557,7 @@ class straddles:
                             avg_sell_price = each_order['average_price']
                             sl_price = min(sl_price, avg_sell_price+sl_points)
                             sl_price = round(sl_price, 1)
-                            telegram_bot_sendtext(f"Placing Sl order for {strategy_entry_hour} {strategy_entry_minute} {symbol} at {sl_price}")
+                            telegram_bot_sendtext(f"Placing Sl order for {strategy} - {symbol} at {sl_price}")
 
                             sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty)
                             trade_dict = {'date':str(current_dt.date()), 'strategy': strategy,'entry_time':str(current_dt.time()), 'symbol': symbol,'sell_price': each_order['average_price'], 'qty': each_order['quantity'], 'sl_id': sl_order_id,
@@ -871,8 +569,8 @@ class straddles:
                             if sl_order_id!= -1:
                                 sl_order_is_placed = True
                                 self.sl_order_id_list.append(sl_order_id)
-                                self.trades_dist[strategy][symbol] = sl_order_id
-                                self.trades_dist[strategy][key_name] = trade_dict
+                                self.trades_dict[strategy][symbol] = sl_order_id
+                                self.trades_dict[strategy][key_name] = trade_dict
                                 if self.buy_hedges_and_increase_quantity:
                                     self.hedges_dict[sl_order_id] = hedge_symbol
                             else:
