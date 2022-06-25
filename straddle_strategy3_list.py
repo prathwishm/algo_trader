@@ -12,6 +12,9 @@ WEDNESDAY = 3
 THRUSDAY = 4
 FRIDAY = 5
 
+# NIFTY Margin: 1L, 1.2L
+# BNF 1.4 , (2.3L)1.7
+# MONDAY: 1*2 + 1.7 + 1.4*2 + 1.2 + 1.7 + 1.2*2 + 1.4 + 1.2 + 1.4 + 1.7
 
 trades_list = [
     {
@@ -266,17 +269,13 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': '13_20_strangle',
+        'strategy_name': '13_20_strangle_watchlist',
         'strategy_type': 'add_bnf_strangle_to_watchlist',
         'entry_time': [13, 20, 0],
-        'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
+        'quantity': BNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER,
         'sl_percent': 0.25,
         'execution_days': [{
             'day': MONDAY,
-            'exit_time': [15, 18, 4],
-            'quantity_multiplier': 1
-        },{
-            'day': TUESDAY,
             'exit_time': [15, 18, 4],
             'quantity_multiplier': 1
         },{
@@ -285,6 +284,23 @@ trades_list = [
             'quantity_multiplier': 1
         },{
             'day': THRUSDAY,
+            'exit_time': [15, 18, 4],
+            'quantity_multiplier': 1
+        }],
+    },
+    {
+        'strategy_name': '13_20_strangle_execute',
+        'strategy_type': 'short_bnf_straddle',
+        'entry_time': [13, 21, 0],
+        'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
+        'sl_percent': 0.25,
+        'strangle': True,
+        'execution_days': [{
+            'day': TUESDAY,
+            'exit_time': [15, 18, 4],
+            'quantity_multiplier': 1
+        },{
+            'day': FRIDAY,
             'exit_time': [15, 18, 4],
             'quantity_multiplier': 1
         }],

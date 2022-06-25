@@ -657,7 +657,7 @@ class straddles:
                     if trades_item['strategy_type'] == 'short_nifty_straddle':
                         self.short_nifty_straddle(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=trades_item['sl_percent'], strangle = trades_item['strangle'], strike_distance = trades_item['strike_distance'])
                     if trades_item['strategy_type'] == 'short_bnf_straddle':
-                        self.short_bnf_straddle(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=0.2, strangle = False)
+                        self.short_bnf_straddle(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=0.2, strangle = trades_item['strangle'])
                     if trades_item['strategy_type'] == 'add_bnf_straddle_to_watchlist':
                         self.add_bnf_straddle_to_watchlist(trades_item['strategy_name'], quantity_specified)
                     if trades_item['strategy_type'] == 'add_bnf_strangle_to_watchlist':
