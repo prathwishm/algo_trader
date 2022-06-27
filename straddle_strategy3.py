@@ -287,6 +287,7 @@ class straddles:
     def update_trade_details(self, each_order, symbols_dict, sl_hit = False):
         try:
             strategy_data = []
+            print(f"Updating order details for {each_order['tradingsymbol']}")
             if each_order['tradingsymbol'][-2:] == 'CE':
                 symbols_dict['ce_details']['buy_price'] = each_order['average_price']
                 symbols_dict['ce_details']['exit_time'] = each_order['exchange_update_timestamp'].split()[1]
