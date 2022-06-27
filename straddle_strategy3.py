@@ -473,6 +473,8 @@ class straddles:
     def check_for_target_hits(self):
         list_of_tokens_to_pop_from_target_watchlist = []
         for strategy_option, values_dict in self.target_watchlist.items():
+            if strategy_option in list_of_tokens_to_pop_from_target_watchlist:
+                continue
             for each_order in self.kite.orders():
                 if each_order['status'] != 'TRIGGER PENDING':
                     list_of_tokens_to_pop_from_target_watchlist.append(strategy_option)
@@ -482,6 +484,7 @@ class straddles:
                         if tick_list[1] < values_dict['target_price'] and tick_list[0] > values_dict['datetime']:
                             list_of_tokens_to_pop_from_target_watchlist.append(strategy_option)
                             self.orders_obj.modify_sl_order(values_dict['order_id'], values_dict['quantity'], values_dict['limit_price'], values_dict['trigger_price'])
+                            telegram_bot_sendtext(f"Updated target for {strat_option} to {values_dict['trigger_price']}")
                             break
 
         for strat_option in list_of_tokens_to_pop_from_target_watchlist:
