@@ -35,6 +35,9 @@ def get_banknifty_atm_strike(ltp):
         atm_strike = ltp - diff
     return atm_strike
 
+def check_if_time_is_allowed(current_dt, given_time):
+    return current_dt.hour == given_time[0] and current_dt.minute >= given_time[1] and (current_dt.second >= given_time[2] or current_dt.minute > given_time[1])
+
 class straddles:
     def __init__(self, kite, kite_func, orders_obj, redis_obj, ticker, margin):
         self.kite = kite
@@ -287,7 +290,7 @@ class straddles:
     def update_trade_details(self, each_order, symbols_dict, sl_hit = False):
         try:
             strategy_data = []
-            print(f"Updating order details for {each_order['tradingsymbol']}")
+            logger.info(f"Updating order details for {each_order['tradingsymbol']}")
             if each_order['tradingsymbol'][-2:] == 'CE':
                 symbols_dict['ce_details']['buy_price'] = each_order['average_price']
                 symbols_dict['ce_details']['exit_time'] = each_order['exchange_update_timestamp'].split()[1]
@@ -473,20 +476,24 @@ class straddles:
 
     def check_for_target_hits(self):
         list_of_tokens_to_pop_from_target_watchlist = []
+        open_orders = []
+        for each_order in self.kite.orders():
+            if each_order['status'] == 'TRIGGER PENDING':
+                open_orders.push(each_order['order_id'])
+
         for strategy_option, values_dict in self.target_watchlist.items():
-            if strategy_option in list_of_tokens_to_pop_from_target_watchlist:
-                continue
-            for each_order in self.kite.orders():
-                if each_order['status'] != 'TRIGGER PENDING':
-                    list_of_tokens_to_pop_from_target_watchlist.append(strategy_option)
-                elif each_order['order_id'] == values_dict['order_id']:
-                    ltp_data = list(map(eval, self.redis.lrange(str(values_dict['token'])+'_data', -25, -1)))
-                    for tick_list in ltp_data:
-                        if tick_list[1] < values_dict['target_price'] and tick_list[0] > values_dict['datetime']:
-                            list_of_tokens_to_pop_from_target_watchlist.append(strategy_option)
-                            self.orders_obj.modify_sl_order(values_dict['order_id'], values_dict['quantity'], values_dict['limit_price'], values_dict['trigger_price'])
-                            telegram_bot_sendtext(f"Updated target for {strat_option} to {values_dict['trigger_price']}")
-                            break
+            if values_dict['order_id'] not in open_orders:
+                print(f"check_for_target_hits :: order not open, hence popping {strategy_option}")
+                list_of_tokens_to_pop_from_target_watchlist.append(strategy_option)
+            else:
+                ltp_data = list(map(eval, self.redis.lrange(str(values_dict['token'])+'_data', -25, -1)))
+                for tick_list in ltp_data:
+                    if tick_list[1] < values_dict['target_price'] and tick_list[0] > values_dict['datetime']:
+                        list_of_tokens_to_pop_from_target_watchlist.append(strategy_option)
+                        self.orders_obj.modify_sl_order(values_dict['order_id'], values_dict['quantity'], values_dict['limit_price'], values_dict['trigger_price'])
+                        telegram_bot_sendtext(f"Updated target for {strat_option} to {values_dict['trigger_price']}")
+                        print(f"check_for_target_hits :: target updated for {strategy_option}")
+                        break
 
         for strat_option in list_of_tokens_to_pop_from_target_watchlist:
             try:
@@ -654,7 +661,7 @@ class straddles:
             if len(execution_day_details) > 0:
                 execution_day_details = execution_day_details[0]
                 quantity_specified = trades_item['quantity'] * execution_day_details['quantity_multiplier']
-                if trades_item['strategy_name'] not in self.trades_placed and current_dt.hour == trades_item['entry_time'][0] and current_dt.minute >= trades_item['entry_time'][1] and (current_dt.second >= trades_item['entry_time'][2] or current_dt.minute > trades_item['entry_time'][1]):
+                if trades_item['strategy_name'] not in self.trades_placed and check_if_time_is_allowed(current_dt, trades_item['entry_time']):
                     self.trades_placed.append(trades_item['strategy_name'])
                     if trades_item['strategy_type'] == 'add_nf_strangle_to_watchlist':
                         self.add_nf_strangle_to_watchlist(trades_item['strategy_name'], quantity_specified)
@@ -668,7 +675,7 @@ class straddles:
                         self.add_bnf_strangle_to_watchlist(strategy = trades_item['strategy_name'], qty = quantity_specified, sl_percent=trades_item['sl_percent'])
             
                 if trades_item['strategy_name'] in self.trades_placed and 'exit_time' in execution_day_details:
-                    if trades_item['strategy_name'] not in self.trades_exited and current_dt.hour == execution_day_details['exit_time'][0] and current_dt.minute >= execution_day_details['exit_time'][1] and (current_dt.second >= execution_day_details['exit_time'][2] or current_dt.minute > execution_day_details['exit_time'][1]):
+                    if trades_item['strategy_name'] not in self.trades_exited and check_if_time_is_allowed(current_dt, execution_day_details['exit_time']):
                         self.trades_exited.append(trades_item['strategy_name'])
                         self.cancel_orders_and_exit_position(self.trades_dict['strategy_name'], quantity_specified)
         
