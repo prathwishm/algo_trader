@@ -1,4 +1,6 @@
 from kiteext import KiteExt
+from kiteconnect import KiteTicker
+import urllib.parse
 import requests
 
 class KiteExt_new(KiteExt):
@@ -15,3 +17,16 @@ class KiteExt_new(KiteExt):
         #self.user_id = r.cookies.get('user_id')
 
         self.headers['Authorization'] = 'enctoken {}'.format(self.enctoken)
+
+    def kws(self, api_key='kitefront'):
+        return KiteTicker(api_key=api_key, access_token='&user_id='+self.user_id+'&enctoken='+urllib.parse.quote(self.enctoken), root='wss://ws.zerodha.com')
+
+    def ticker(self, api_key='kitefront', enctoken=None, userid=None):
+        if enctoken is not None:
+            self.enctoken = enctoken
+        if userid is not None:
+            self.user_id = userid
+        if self.user_id is None:
+            raise Exception(
+                f'userid cannot be none, either login with credentials first or set userid here')
+        return KiteTicker(api_key=api_key, access_token='&user_id='+self.user_id+'&enctoken='+urllib.parse.quote(self.enctoken), root='wss://ws.zerodha.com')
