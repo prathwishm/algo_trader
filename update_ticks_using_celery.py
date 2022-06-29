@@ -31,10 +31,10 @@ def insert_ticks(ticks):
                 #print(tick)
                 if ticker_token in [256265, 260105]:
                     r.set(ticker_token, tick['last_price'])
-                elif not (ticker_dict[ticker_token][-1] == tick['volume'] and ticker_dict[ticker_token][-2] == tick['last_price']):
+                elif not (ticker_dict[ticker_token][-1] == tick['volume_traded'] and ticker_dict[ticker_token][-2] == tick['last_price']):
                     if type(tick['last_trade_time']) == str:
                         tick['last_trade_time'] = datetime.datetime.strptime(tick['last_trade_time'], '%Y-%m-%dT%H:%M:%S')
-                    vals = [tick['last_trade_time'], tick['last_price'], tick['volume']]
+                    vals = [tick['last_trade_time'], tick['last_price'], tick['volume_traded']]
                     ticker_dict[ticker_token] = vals
 
                     r.set(ticker_token, tick['last_price'])
@@ -45,12 +45,12 @@ def insert_ticks(ticks):
                 print(ticker_token, "not in dict.")
                 if type(tick['last_trade_time']) == datetime.datetime:
                     if (tick['last_trade_time'].hour >= 9 and tick['last_trade_time'].minute >= 15) or tick['last_trade_time'].hour >= 10:
-                        vals = [tick['last_trade_time'], tick['last_price'], tick['volume']]
+                        vals = [tick['last_trade_time'], tick['last_price'], tick['volume_traded']]
                         ticker_dict[ticker_token] = vals
                 else:
                     print(f'tick last_trade_time is not datetime object. The type is {type(tick["last_trade_time"])}. The value is {tick["last_trade_time"]}')
                     tick['last_trade_time'] = datetime.datetime.strptime(tick['last_trade_time'], '%Y-%m-%dT%H:%M:%S')
-                    vals = [tick['last_trade_time'], tick['last_price'], tick['volume']]
+                    vals = [tick['last_trade_time'], tick['last_price'], tick['volume_traded']]
                     ticker_dict[ticker_token] = vals
 
             except KeyError as key:

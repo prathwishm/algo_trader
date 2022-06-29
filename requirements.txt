@@ -37,7 +37,7 @@ ipython==8.0.1
 jedi==0.18.1
 jupyter-client==7.1.2
 jupyter-core==4.9.2
-kiteconnect==3.9.6
+kiteconnect==4.1.0
 kiteext @ git+https://gitlab.com/algo2t/kiteext.git@da9d20c9ea1fd240e9527b04adfa1c4f3b7dd25e
 kombu==5.2.3
 matplotlib-inline==0.1.3
