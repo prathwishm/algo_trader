@@ -642,7 +642,7 @@ class straddles:
                     if exit_quantity > 0:
                         self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity)
 
-        if len(dict.keys()) > 0:
+        if len(self.hedges_dict.keys()) > 0:
             dt_now = datetime.datetime.now()
             time_difference = dt_now - self.last_orders_checked_dt
             if time_difference.seconds >= 6:
