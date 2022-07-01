@@ -624,7 +624,7 @@ class straddles:
                 if trades_item['strategy_name'] in self.trades_placed and 'exit_time' in execution_day_details:
                     if trades_item['strategy_name'] not in self.trades_exited and check_if_time_is_allowed(current_dt, execution_day_details['exit_time']):
                         self.trades_exited.append(trades_item['strategy_name'])
-                        self.cancel_orders_and_exit_position(trades_item, execution_day_details, self.trades_dict['strategy_name'])
+                        self.cancel_orders_and_exit_position(trades_item, execution_day_details, self.trades_dict[trades_item['strategy_name']])
         
         if not self.exit_procedure_done and current_dt.hour == 15 and current_dt.minute >=19:
             self.exit_procedure_done = True
