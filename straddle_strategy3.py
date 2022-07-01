@@ -428,7 +428,7 @@ class straddles:
         open_orders = []
         for each_order in self.kite.orders():
             if each_order['status'] == 'TRIGGER PENDING':
-                open_orders.push(each_order['order_id'])
+                open_orders.append(each_order['order_id'])
 
         for strategy_option, values_dict in self.target_watchlist.items():
             if values_dict['order_id'] not in open_orders:
