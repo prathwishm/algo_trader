@@ -94,6 +94,7 @@ while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute
         traceback.print_exc()
         error_count += 1
         if error_count >10:
+            telegram_bot_sendtext("Unexpected error in main while loop. Error: "+str(e))
             break
 
     except KeyboardInterrupt:

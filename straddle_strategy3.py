@@ -139,6 +139,7 @@ class straddles:
             pe_order_id = self.orders_obj.place_market_order(symbol = instrument_symbol_pe, buy_sell= "sell", quantity=qty)
             self.traded_symbols_list.extend([instrument_symbol_ce, instrument_symbol_pe])
             time.sleep(2)
+            orders_placed = []
 
             for each_order in self.kite.orders():
                 if each_order['order_id'] == ce_order_id:
@@ -163,6 +164,7 @@ class straddles:
                             'exit_time': None,
                             'sl_hit':False
                         }
+                        orders_placed.append(ce_dict)
 
                         if ce_sl_order_id != -1:
                             self.sl_order_id_list.append(ce_sl_order_id)
@@ -174,9 +176,9 @@ class straddles:
                             if buy_hedges:
                                 self.hedges_dict[ce_sl_order_id] = hedge_symbol_ce
                         else:
-                            telegram_bot_sendtext("NIFTY straddle CE option Stop Loss order is not Placed!!!!!")
+                            telegram_bot_sendtext(f"{strategy_details['instrument_type']} straddle CE option Stop Loss order is not Placed!!!!!")
                     else:
-                        telegram_bot_sendtext("NIFTY straddle CE option sell order is not filled!!!!!")
+                        telegram_bot_sendtext(f"{strategy_details['instrument_type']} straddle CE option sell order is not filled!!!!!")
                 
                 if each_order['order_id'] == pe_order_id:
                     if each_order['status'] == 'COMPLETE':
@@ -199,6 +201,7 @@ class straddles:
                             'exit_time': None,
                             'sl_hit':False
                         }
+                        orders_placed.append(pe_dict)
                         if pe_sl_order_id!= -1:
                             self.sl_order_id_list.append(pe_sl_order_id)
                             if strategy_name not in self.trades_dict: 
@@ -213,9 +216,23 @@ class straddles:
                     else:
                         telegram_bot_sendtext(f"{strategy_details['instrument_type']} straddle PE option sell order is not filled!!!!!")
 
+            self.send_orders_details(orders_placed, strategy_name)
         except Exception as e:
             logger.exception(f"Unexpected error while shorting {strategy_details['instrument_type']} straddle. Error: "+str(e))
             telegram_bot_sendtext(f"Unexpected error while shorting {strategy_details['instrument_type']} straddle. Error: "+str(e))
+            traceback.print_exc()
+
+    def send_orders_details(self, orders_placed, strategy_name):
+        try:
+            msg_text = "Placed stategy " + strategy_name + "\n"
+            
+            for each_order in orders_placed():
+                msg_text = msg_text + f"{each_order['symbol']} @ {each_order['sell_price']} - SL {each_order['sl_price']}\n"
+            telegram_bot_sendtext(msg_text)
+
+        except Exception as e:
+            logger.exception(f"Unexpected error while send_orders_details. Error: "+str(e))
+            telegram_bot_sendtext(f"Unexpected error while send_orders_details. Error: "+str(e))
             traceback.print_exc()
 
     def cancel_orders_and_exit_position(self, strategy_details, execution_day_details, symbols_dict):
@@ -288,7 +305,7 @@ class straddles:
                 self.nf_bnf_option_tokens.extend([token_ce, token_pe])
 
         if len(tokens_list) > 0:
-            telegram_bot_sendtext(f'ADDING {tokens_list} to websocket')
+            logger.info(f'ADDING {tokens_list} to websocket')
             self.ticker.subscribe_tokens(tokens_list)
             time.sleep(5)
 
@@ -316,7 +333,7 @@ class straddles:
                 self.nf_bnf_option_tokens.append(token_pe)
 
         if len(tokens_list) > 0:
-            telegram_bot_sendtext(f'ADDING {tokens_list} to websocket')
+            logger.info(f'ADDING {tokens_list} to websocket')
             self.ticker.subscribe_tokens(tokens_list)
             time.sleep(5)
 
@@ -328,14 +345,13 @@ class straddles:
                 atm_strike = get_nifty_atm_strike(instrument_ltp)
                 strike_distance = 100 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
                 sl_percent = 0.25 if 'sl_percent' not in strategy_details else strategy_details['sl_percent']
-                # trigger_price_buffer = 20
+
             elif strategy_details['instrument_type'] == 'BANKNIFTY':
                 instrument_token = self.bank_nifty_token
                 instrument_ltp = eval(self.redis.get(str(instrument_token)))
                 atm_strike = get_banknifty_atm_strike(instrument_ltp)
                 strike_distance = 200 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
                 sl_percent = 0.2 if 'sl_percent' not in strategy_details else strategy_details['sl_percent']
-                # trigger_price_buffer = 40
 
             strategy_name = strategy_details['strategy_name']
             strangle = False if 'strangle' not in strategy_details else strategy_details['strangle']
@@ -379,6 +395,8 @@ class straddles:
                 'buy_hedges': buy_hedges,
                 'quantity':qty
             }
+
+            telegram_bot_sendtext(f"Watch list created for {strategy_details['instrument_type']}-{strategy_name}.\n {atm_strike} CE - {ce_trigger_price}\n {atm_strike} PE - {pe_trigger_price}")
 
         except Exception as e:
             logger.exception(f"Unexpected error in add_to_watchlist for {strategy_details['instrument_type']}. Error: "+str(e))
@@ -471,6 +489,7 @@ class straddles:
             self.trades_dict[strategy][symbol] = None
             time.sleep(1)
             sl_order_is_placed = False
+            orders_placed = []
             for _ in range(5):
                 if sl_order_is_placed:
                     break
@@ -490,6 +509,22 @@ class straddles:
                                 key_name = 'ce_details'
                             else:
                                 key_name = 'pe_details'
+                            
+                            order_dict = {
+                                'date':str(current_dt.date()),
+                                'strategy': strategy,
+                                'entry_time':str(current_dt.time()),
+                                'symbol': symbol,
+                                'sell_price': avg_sell_price,
+                                'qty': qty,
+                                'sl_id': sl_order_id,
+                                'sl_price':sl_price,
+                                'buy_price': None,
+                                'exit_time': None,
+                                'sl_hit':False
+                            }
+                            orders_placed.append(order_dict)
+
                             if sl_order_id!= -1:
                                 sl_order_is_placed = True
                                 self.sl_order_id_list.append(sl_order_id)
@@ -504,6 +539,8 @@ class straddles:
 
             if not sl_order_is_placed:
                 telegram_bot_sendtext(f"{symbol} option sell order is not filled!!!!!")
+            
+            self.send_orders_details(orders_placed, strategy)
 
     def get_hedge_symbol(self, symbol):
         try:
@@ -608,23 +645,24 @@ class straddles:
             execution_day_details = [execution_days for execution_days in trades_item['execution_days'] if execution_days['day'] == self.iso_week_day]
             if len(execution_day_details) > 0:
                 execution_day_details = execution_day_details[0]
+                strategy_name = trades_item['strategy_name']
                 buy_hedges = False if 'hedge_multiplier' not in execution_day_details else True
                 quantity_specified = trades_item['quantity'] * execution_day_details['quantity_multiplier']
 
                 if buy_hedges:
                     quantity_specified = quantity_specified * execution_day_details['hedge_multiplier']
 
-                if trades_item['strategy_name'] not in self.trades_placed and check_if_time_is_allowed(current_dt, trades_item['entry_time']):
-                    self.trades_placed.append(trades_item['strategy_name'])
+                if strategy_name not in self.trades_placed and check_if_time_is_allowed(current_dt, trades_item['entry_time']):
+                    self.trades_placed.append(strategy_name)
                     if trades_item['strategy_type'] == 'add_to_watchlist':
                         self.add_to_watchlist(trades_item, execution_day_details)
                     if trades_item['strategy_type'] == 'short_straddle':
                         self.short_straddle(trades_item, execution_day_details)
             
-                if trades_item['strategy_name'] in self.trades_placed and 'exit_time' in execution_day_details:
-                    if trades_item['strategy_name'] not in self.trades_exited and check_if_time_is_allowed(current_dt, execution_day_details['exit_time']):
-                        self.trades_exited.append(trades_item['strategy_name'])
-                        self.cancel_orders_and_exit_position(trades_item, execution_day_details, self.trades_dict[trades_item['strategy_name']])
+                if strategy_name in self.trades_placed and 'exit_time' in execution_day_details:
+                    if strategy_name not in self.trades_exited and check_if_time_is_allowed(current_dt, execution_day_details['exit_time']):
+                        self.trades_exited.append(strategy_name)
+                        self.cancel_orders_and_exit_position(trades_item, execution_day_details, self.trades_dict[strategy_name])
         
         if not self.exit_procedure_done and current_dt.hour == 15 and current_dt.minute >=19:
             self.exit_procedure_done = True
