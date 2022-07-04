@@ -325,7 +325,7 @@ class straddles:
     def main(self):
         current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
 
-        if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 40):
+        if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 54):
             self.short_options_on_trigger()
 
         #Add straddles and strangles to websocket so that orders are executed around 9:16:00
