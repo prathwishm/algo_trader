@@ -226,7 +226,7 @@ class straddles:
         try:
             msg_text = "Placed stategy " + strategy_name + "\n"
             
-            for each_order in orders_placed():
+            for each_order in orders_placed:
                 msg_text = msg_text + f"{each_order['symbol']} @ {each_order['sell_price']} - SL {each_order['sl_price']}\n"
             telegram_bot_sendtext(msg_text)
 
