@@ -104,10 +104,12 @@ class straddles:
         self.exit_15_19_done = False
         self.add_straddle_strangle_to_websocket = False
         self.last_orders_checked_dt = None
-        self.buy_hedges_and_increase_quantity = False
+        self.buy_hedges_and_increase_quantity = True
+        self.quantity_multiplier = 2
         if self.iso_week_day in [3,4]:
             self.add_straddle_strangle_to_websocket = True
-            self.buy_hedges_and_increase_quantity = True
+            #self.buy_hedges_and_increase_quantity = True
+            self.quantity_multiplier = 3
             self.last_orders_checked_dt = datetime.datetime.now()
         self.hedges_dict = {}
         self.hedge_exit_sl_order_id_list = []
@@ -160,7 +162,7 @@ class straddles:
                 bnf_symbol_pe, bnf_token_pe = self.kite_functions.get_options_symbol_and_token('BANKNIFTY', bnf_atm_strike, 'PE')
 
             if self.buy_hedges_and_increase_quantity:
-                qty = qty * 3
+                qty = qty * self.quantity_multiplier
                 hedge_symbol_ce, hedge_token_ce = self.get_hedge_symbol(bnf_symbol_ce)
                 hedge_symbol_pe, hedge_token_pe = self.get_hedge_symbol(bnf_symbol_pe)
                 hedge_ce_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol_ce, buy_sell= "buy", quantity=qty, use_limit_order = False)
@@ -241,7 +243,7 @@ class straddles:
                 nf_symbol_ce, nf_token_ce = self.kite_functions.get_options_symbol_and_token('NIFTY', nf_atm_strike, 'CE')
                 nf_symbol_pe, nf_token_pe = self.kite_functions.get_options_symbol_and_token('NIFTY', nf_atm_strike, 'PE')
             if self.buy_hedges_and_increase_quantity:
-                qty = qty * 3
+                qty = qty * self.quantity_multiplier
                 hedge_symbol_ce, hedge_token_ce = self.get_hedge_symbol(nf_symbol_ce)
                 hedge_symbol_pe, hedge_token_pe = self.get_hedge_symbol(nf_symbol_pe)
                 hedge_ce_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol_ce, buy_sell= "buy", quantity=qty, use_limit_order = False)
@@ -465,7 +467,7 @@ class straddles:
                         if each_pos['tradingsymbol'] in symbols_dict.keys() and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0 and each_pos['tradingsymbol'] not in exited_symbols:
                             exit_quantity = qty
                             if self.buy_hedges_and_increase_quantity:
-                                exit_quantity = qty * 3
+                                exit_quantity = qty * self.quantity_multiplier
                             exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
                             if exit_quantity > 0:
                                 exit_order_id = self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity)
@@ -673,7 +675,7 @@ class straddles:
 
     def short_option_and_place_sl(self, strategy, symbol, sl_price, qty, dt):
             if self.buy_hedges_and_increase_quantity:
-                qty = qty * 3
+                qty = qty * self.quantity_multiplier
                 hedge_symbol, hedge_token = self.get_hedge_symbol(symbol)
                 if hedge_symbol == None:
                     telegram_bot_sendtext(f"Hedge Symbol is None for {symbol}. Straddle entry time is {dt}")
