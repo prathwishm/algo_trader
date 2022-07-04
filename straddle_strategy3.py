@@ -648,11 +648,6 @@ class straddles:
             if len(execution_day_details) > 0:
                 execution_day_details = execution_day_details[0]
                 strategy_name = trades_item['strategy_name']
-                buy_hedges = False if 'hedge_multiplier' not in execution_day_details else True
-                quantity_specified = trades_item['quantity'] * execution_day_details['quantity_multiplier']
-
-                if buy_hedges:
-                    quantity_specified = quantity_specified * execution_day_details['hedge_multiplier']
 
                 if strategy_name not in self.trades_placed and check_if_time_is_allowed(current_dt, trades_item['entry_time']):
                     self.trades_placed.append(strategy_name)
@@ -674,6 +669,16 @@ class straddles:
                 if each_order['order_id'] in self.sl_order_id_list:
                     if each_order['status'] == 'TRIGGER PENDING':
                         self.orders_obj.cancel_order(each_order['order_id'])
+
+            for trades_item in self.trades_list:
+                execution_day_details = [execution_days for execution_days in trades_item['execution_days'] if execution_days['day'] == self.iso_week_day]
+                if len(execution_day_details) > 0:
+                    execution_day_details = execution_day_details[0]
+                    strategy_name = trades_item['strategy_name']
+
+                    if strategy_name not in self.trades_exited:
+                        self.trades_exited.append(strategy_name)
+                        self.cancel_orders_and_exit_position(trades_item, execution_day_details, self.trades_dict[strategy_name])
 
             for each_pos in self.kite.positions()['day']:
                 if each_pos['tradingsymbol'] in self.traded_symbols_list and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0:
