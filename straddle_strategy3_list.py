@@ -17,10 +17,10 @@ NEAR_TO_EXPIRY_TARGET_PRICE = 0.25
 
 # NIFTY Margin: 1L, 1.2L
 # BNF 1.4 , (2.3L)1.7
-# MONDAY: 1*2 + 1.7 + 1.4*2 + 1.2 + 1.7 + 1.2*2 + 1.4 + 1.2 + 1.4 + 1.7 = 17.5
+# MONDAY: 1*2 + 1.4*2 + 1.2 + 1.7 + 1.2*2 + 1.4 + 1.2 + 1.4 + 1.7 = 15.8
 # TUESDAY: 1.4*2 + 1.2 + 1.7 + 1.2*2 + 1.4*2 + 1.2 + 1.7 = 13.8
 # WEDNESDAY: 1*2 + 1.4*1 + 1.4*2 + 1.2 + 1.4 + 1.2*2 + 1.4 + 1.2 + 1.4 = 16.6
-# THRUSDAY: 1*2 + 1.2 + 1.4*2 + 1.2 + 1.4 + 1.2*2 + 1.4 + 1.2 + 1.4 = 15
+# THRUSDAY: 1*2 + 1.7 + 1.2 + 1.4*2 + 1.2 + 1.4 + 1.2*2 + 1.4 + 1.2 + 1.4 = 16.7
 # FRIDAY: 1.4*2 + 1.2 + 1.4 + 1.2*2 + 1.4 + 1.2*2 + 1.7 = 13.3
 trades_list = [
     {
@@ -54,17 +54,18 @@ trades_list = [
         'strategy_type': 'short_straddle',
         'instrument_type': 'BANKNIFTY',
         'entry_time': [9, 16, 0],
-        'exit_time': [11, 44, 4],
         'quantity': BNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER,
         'sl_percent': 0.25,
         'strangle': True,
         'strike_distance': 100,
         'execution_days': [{
-            'day': MONDAY,
-            'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
+            'day': WEDNESDAY,
+            'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
+            'exit_time': [11, 44, 4],
+            'hedge_multiplier': 3,
             'quantity_multiplier': 1
         }, {
-            'day': WEDNESDAY,
+            'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [11, 44, 4],
             'hedge_multiplier': 3,
