@@ -244,6 +244,8 @@ class straddles:
         if buy_hedges:
             qty = qty * execution_day_details['hedge_multiplier']
 
+        telegram_bot_sendtext(f"Exiting strategy {strategy_details['strategy_name']}")
+
         for each_order in self.kite.orders():
             if each_order['order_id'] in symbols_dict.values():
                 if each_order['status'] == 'TRIGGER PENDING':
