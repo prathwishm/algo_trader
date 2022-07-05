@@ -460,7 +460,7 @@ class straddles:
                     if tick_list[1] < values_dict['target_price'] and tick_list[0] > values_dict['datetime']:
                         list_of_tokens_to_pop_from_target_watchlist.append(strategy_option)
                         self.orders_obj.modify_sl_order(values_dict['order_id'], values_dict['quantity'], values_dict['limit_price'], values_dict['trigger_price'])
-                        telegram_bot_sendtext(f"Updated target for {strat_option} to {values_dict['trigger_price']}")
+                        telegram_bot_sendtext(f"Updated target for {strategy_option} to {values_dict['trigger_price']}")
                         print(f"check_for_target_hits :: target updated for {strategy_option}")
                         break
 
