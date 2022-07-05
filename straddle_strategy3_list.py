@@ -383,7 +383,7 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
-            'hedge_multiplier': 2,
+            'hedge_multiplier': 3,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
@@ -411,13 +411,13 @@ trades_list = [
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
-            'hedge_multiplier': 2,
+            'hedge_multiplier': 3,
             'quantity_multiplier': 1
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
-            'hedge_multiplier': 2,
+            'hedge_multiplier': 3,
             'quantity_multiplier': 1
         }],
     },
