@@ -627,7 +627,7 @@ class straddles:
     def main(self):
         current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
 
-        if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 40):
+        if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 54):
             self.short_options_on_trigger()
 
         if current_dt.hour < 15 or (current_dt.hour == 15 and current_dt.minute < 15):
@@ -670,6 +670,7 @@ class straddles:
                     if each_order['status'] == 'TRIGGER PENDING':
                         self.orders_obj.cancel_order(each_order['order_id'])
 
+            # Exit all placed orders
             for trades_item in self.trades_list:
                 execution_day_details = [execution_days for execution_days in trades_item['execution_days'] if execution_days['day'] == self.iso_week_day]
                 if len(execution_day_details) > 0:
@@ -680,6 +681,7 @@ class straddles:
                         self.trades_exited.append(strategy_name)
                         self.cancel_orders_and_exit_position(trades_item, execution_day_details, self.trades_dict[strategy_name])
 
+            # Exit all MIS orders including manually placed
             for each_pos in self.kite.positions()['day']:
                 if each_pos['tradingsymbol'] in self.traded_symbols_list and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0:
                     exit_quantity = abs(each_pos['quantity'])

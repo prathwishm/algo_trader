@@ -63,7 +63,7 @@ class Class_Orders:
                                             order_type=kite.ORDER_TYPE_MARKET,
                                             product=kite.PRODUCT_MIS,
                                             variety=kite.VARIETY_REGULAR)
-            telegram_bot_sendtext(f'Placed {quantity} quantity {buy_sell} order for {symbol}')
+            logger.info(f'Placed {quantity} quantity {buy_sell} order for {symbol}')
             return placed_order_id
 
         except Exception as e:

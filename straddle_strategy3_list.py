@@ -24,7 +24,7 @@ NEAR_TO_EXPIRY_TARGET_PRICE = 0.25
 # FRIDAY: 1.4*2 + 1.2 + 1.4 + 1.2*2 + 1.4 + 1.2*2 + 1.7 = 13.3
 trades_list = [
     {
-        'strategy_name': '9_16_strangle',
+        'strategy_name': '9_16_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': 'NIFTY',
         'entry_time': [9, 16, 0],
@@ -34,6 +34,7 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 15, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }, {
             'day': WEDNESDAY,
@@ -50,7 +51,7 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': 'bnf_9_16_expiry_strangle',
+        'strategy_name': 'bnf_9_16_expiry_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': 'BANKNIFTY',
         'entry_time': [9, 16, 0],
@@ -73,7 +74,7 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': 'nf_9_16_expiry_strangle',
+        'strategy_name': 'nf_9_16_expiry_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': 'NIFTY',
         'entry_time': [9, 16, 0],
@@ -89,7 +90,7 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': '9_20_straddle',
+        'strategy_name': '9_20_straddle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': 'BANKNIFTY',
         'entry_time': [9, 19, 54],
@@ -99,11 +100,13 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
@@ -121,11 +124,12 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
     {
-        'strategy_name': 'nf_9_40_strangle',
+        'strategy_name': 'nf_9_40_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': 'NIFTY',
         'entry_time': [9, 39, 52],
@@ -137,11 +141,13 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
@@ -159,11 +165,12 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
     {
-        'strategy_name': '10_05_strangle',
+        'strategy_name': '10_05_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': 'BANKNIFTY',
         'entry_time': [10, 5, 0],
@@ -174,11 +181,13 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
@@ -196,11 +205,12 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
     {
-        'strategy_name': 'nf_10_45_strangle',
+        'strategy_name': 'nf_10_45_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': 'NIFTY',
         'entry_time': [10, 44, 52],
@@ -212,11 +222,13 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
@@ -234,11 +246,12 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
     {
-        'strategy_name': '11_15_strangle',
+        'strategy_name': '11_15_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': 'BANKNIFTY',
         'entry_time': [11, 15, 0],
@@ -249,11 +262,13 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 2
         },{
             'day': WEDNESDAY,
@@ -271,11 +286,12 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 2
         }],
     },
     {
-        'strategy_name': 'nf_11_30_strangle',
+        'strategy_name': 'nf_11_30_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': 'NIFTY',
         'entry_time': [11, 29, 52],
@@ -287,11 +303,13 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 17, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 17, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
@@ -309,11 +327,12 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 17, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 2
         }],
     },
     {
-        'strategy_name': '11_45_strangle',
+        'strategy_name': '11_45_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': 'BANKNIFTY',
         'entry_time': [11, 44, 54],
@@ -324,11 +343,13 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 12, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 12, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
@@ -346,6 +367,7 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 12, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
@@ -361,6 +383,7 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
@@ -388,11 +411,13 @@ trades_list = [
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
+            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
