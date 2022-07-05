@@ -103,7 +103,7 @@ class straddles:
         self.exit_15_17_done = False
         self.exit_15_19_done = False
         self.add_straddle_strangle_to_websocket = False
-        self.last_orders_checked_dt = None
+        self.last_orders_checked_dt = datetime.datetime.now()
         self.buy_hedges_and_increase_quantity = True
         self.quantity_multiplier = 2
         if self.iso_week_day in [3,4]:

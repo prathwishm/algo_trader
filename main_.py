@@ -91,6 +91,7 @@ while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute
 
     except Exception as e:
         logger.exception("Unexpected error in main while loop. Error: "+str(e))
+        telegram_bot_sendtext("Unexpected error in main while loop. Error: "+str(e))
         traceback.print_exc()
         error_count += 1
         if error_count >10:
