@@ -457,14 +457,16 @@ class straddles:
 
     def cancel_orders_and_exit_position(self, symbols_dict, qty):
         exited_symbols = [] #Used to prevent exiting of same symbol from a different strategy
+        symbols_to_exit = []
         exited_order_ids = []
         for each_order in self.kite.orders():
             if each_order['order_id'] in symbols_dict.values():
                 if each_order['status'] == 'TRIGGER PENDING':
                     self.orders_obj.cancel_order(each_order['order_id'])
+                    symbols_to_exit.append(each_order['tradingsymbol'])
 
                     for each_pos in self.kite.positions()['day']:
-                        if each_pos['tradingsymbol'] in symbols_dict.keys() and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0 and each_pos['tradingsymbol'] not in exited_symbols:
+                        if each_pos['tradingsymbol'] in symbols_to_exit and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0 and each_pos['tradingsymbol'] not in exited_symbols:
                             exit_quantity = qty
                             if self.buy_hedges_and_increase_quantity:
                                 exit_quantity = qty * self.quantity_multiplier
