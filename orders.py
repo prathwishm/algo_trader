@@ -55,7 +55,7 @@ class Class_Orders:
                                             product=kite.PRODUCT_MIS,
                                             variety=kite.VARIETY_REGULAR)
             except:
-                telegram_bot_sendtext(f'Placing market order for {symbol}')
+                logger.info(f'Placing market order for {symbol}')
                 placed_order_id = kite.place_order(tradingsymbol=symbol,
                                             exchange=kite.EXCHANGE_NFO,
                                             transaction_type=t_type,

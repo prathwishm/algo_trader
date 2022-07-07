@@ -124,7 +124,6 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
-            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
@@ -165,7 +164,6 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
-            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
@@ -205,7 +203,6 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
-            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
@@ -246,7 +243,6 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
-            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
@@ -286,7 +282,6 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
-            'hedge_multiplier': 2,
             'quantity_multiplier': 2
         }],
     },
@@ -327,7 +322,7 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 17, 4],
-            'hedge_multiplier': 2,
+            'hedge_multiplier': 3,
             'quantity_multiplier': 2
         }],
     },
@@ -367,7 +362,6 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 12, 4],
-            'hedge_multiplier': 2,
             'quantity_multiplier': 1
         }],
     },
