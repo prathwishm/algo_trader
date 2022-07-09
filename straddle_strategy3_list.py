@@ -442,8 +442,8 @@ trades_list = [
     },
     {
         # New strategy
-        'strategy_name': '13_25_FNF_strangle_execute',
-        'strategy_type': 'short_straddle',
+        'strategy_name': '13_25_FNF_strangle_watchlist',
+        'strategy_type': 'add_to_watchlist',
         'instrument_type': INSTRUMENT_FNF,
         'entry_time': [22, 56, 0],
         'quantity': FNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER,
