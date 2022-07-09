@@ -9,7 +9,6 @@ OTHER_STRATEGY_LOT_MULTIPLIER = 1
 CORE_STRATEGY_HEDGE_MULTIPLIER = 3
 EXPIRY_HEDGE_MULTIPLIER = 3
 OTHER_STRATEGY_HEDGE_MULTIPLIER = 2
-EXCEPTION_HEDGE_MULTIPLIER = 3
 
 MONDAY = 1
 TUESDAY = 2
@@ -20,15 +19,17 @@ FRIDAY = 5
 FAR_TO_EXPIRY_TARGET_PRICE = 0.35
 NEAR_TO_EXPIRY_TARGET_PRICE = 0.25
 
-NRML_DAYS = [WEDNESDAY, THRUSDAY]
+NRML_DAYS = [THRUSDAY]
 
-# NIFTY Margin: 1L, 1.2L
-# BNF 1.4 , (2.3L)1.7
-# MONDAY: 1*2 + 1.4*2 + 1.2 + 1.7 + 1.2*2 + 1.4 + 1.2 + 1.4 + 1.7 = 15.8
-# TUESDAY: 1.4*2 + 1.2 + 1.7 + 1.2*2 + 1.4*2 + 1.2 + 1.7 = 13.8
-# WEDNESDAY: 1*2 + 1.4*1 + 1.4*2 + 1.2 + 1.4 + 1.2*2 + 1.4 + 1.2 + 1.4 = 16.6
-# THRUSDAY: 1*2 + 1.7 + 1.2 + 1.4*2 + 1.2 + 1.4 + 1.2*2 + 1.4 + 1.2 + 1.4 = 16.7
-# FRIDAY: 1.4*2 + 1.2 + 1.4 + 1.2*2 + 1.4 + 1.2*2 + 1.7 = 13.3
+# margin required for MONDAY = 1695000.0
+# margin required for TUESDAY = 1590000.0
+# margin required for WEDNESDAY = 1755000.0
+# margin required for THRUSDAY = 2085000.0
+# margin required for FRIDAY = 1760000.0
+
+# DEFAULT SL NIFTY = 0.25
+# DEFAULT SL BANKNIFTY = 0.2
+
 trades_list = [
     {
         'strategy_name': '9_16_strangle_watchlist',
@@ -47,13 +48,13 @@ trades_list = [
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 15, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }, {
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 15, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
     },
@@ -70,7 +71,7 @@ trades_list = [
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [11, 44, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }, {
             'day': THRUSDAY,
@@ -119,7 +120,7 @@ trades_list = [
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': THRUSDAY,
@@ -159,7 +160,7 @@ trades_list = [
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': THRUSDAY,
@@ -198,7 +199,7 @@ trades_list = [
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': THRUSDAY,
@@ -238,7 +239,7 @@ trades_list = [
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': THRUSDAY,
@@ -277,7 +278,7 @@ trades_list = [
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': THRUSDAY,
@@ -329,7 +330,7 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 17, 4],
-            'hedge_multiplier': EXCEPTION_HEDGE_MULTIPLIER,
+            'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 2
         }],
     },
@@ -357,7 +358,7 @@ trades_list = [
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 12, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': THRUSDAY,
@@ -384,13 +385,13 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': THRUSDAY,
@@ -412,13 +413,13 @@ trades_list = [
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
-            'hedge_multiplier': EXCEPTION_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
-            'hedge_multiplier': EXCEPTION_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
     },

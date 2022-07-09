@@ -295,7 +295,7 @@ class straddles:
                 pnl = (symbols_dict['pe_details']['sell_price'] - symbols_dict['pe_details']['buy_price']) * symbols_dict['pe_details']['qty']
                 symbols_dict['pe_details']['pnl'] = math.floor(pnl)
                 strategy_data = list(symbols_dict['pe_details'].values())
-            telegram_bot_sendtext(strategy_data, filter_text = False)
+            logger.info(strategy_data)
             self.wks.append_row(strategy_data)
         except Exception as e:
             logger.exception("Unexpected error in update_trade_details. Error: "+str(e))
