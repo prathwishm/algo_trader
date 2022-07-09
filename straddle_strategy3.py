@@ -56,7 +56,7 @@ class straddles:
 
         self.nifty_token = kite_func.get_symbol_token('NSE:NIFTY 50')
         self.bank_nifty_token = kite_func.get_symbol_token('NSE:NIFTY BANK')
-        self.fin_nifty_token = kite_func.get_symbol_token('NSE:NIFTY FINANCIAL SERVICES')
+        self.fin_nifty_token = kite_func.get_symbol_token('NSE:NIFTY FIN SERVICE')
         self.nf_bnf_option_tokens.extend([self.nifty_token, self.bank_nifty_token, self.fin_nifty_token])
         self.iso_week_day = datetime.date.today().isoweekday()
 
