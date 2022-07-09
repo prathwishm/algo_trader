@@ -101,6 +101,8 @@ while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute
         logger.info('\nKeyboard exception received. Exiting.')
         break
 
+straddles_obj.get_running_pnl()
+
 logger.info('Stopping Websocket')
 ticker.kws.stop()
 

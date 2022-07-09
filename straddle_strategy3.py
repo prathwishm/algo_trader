@@ -1,4 +1,5 @@
 import datetime
+import math
 import pytz
 import traceback
 import time
@@ -63,6 +64,8 @@ class straddles:
         self.trades_exited = []
         self.trades_dict = {}
 
+        self.running_pnl_done = {}
+
         self.exit_15_19_done = False
         self.add_straddle_strangle_to_websocket = False
         self.last_orders_checked_dt = datetime.datetime.now()
@@ -70,12 +73,15 @@ class straddles:
             self.add_straddle_strangle_to_websocket = True
         self.hedges_dict = {}
         self.hedge_exit_sl_order_id_list = []
-        self.trade_details_list = []
 
         sa = gspread.service_account(filename='gsheetes-project-1bb0d0a4d7a8.json')
         sh = sa.open("algo_tradelog")
-        self.wks = sh.worksheet("Prasad")
+        self.wks = sh.worksheet("Prasad_detailed")
+        self.wks_pnl = sh.worksheet("Prasad_summary")
+        self.wks_running_pnl = sh.worksheet("Prasad_R_PNL")
         self.wks.append_row(['-'])
+        self.wks_pnl.append_row(['-'])
+        self.wks_running_pnl.append_row(['-'])
 
     def set_target_trigger_price(self, strategy, option_type, sl_order_id, token, qty, target_price, trigger_price, limit_price):
         try:
@@ -279,15 +285,16 @@ class straddles:
                 symbols_dict['ce_details']['buy_price'] = each_order['average_price']
                 symbols_dict['ce_details']['exit_time'] = each_order['exchange_update_timestamp'].split()[1]
                 symbols_dict['ce_details']['sl_hit'] = sl_hit
-                symbols_dict['ce_details']['pnl'] = (symbols_dict['ce_details']['sell_price'] - symbols_dict['ce_details']['buy_price']) * symbols_dict['ce_details']['qty']
+                pnl = (symbols_dict['ce_details']['sell_price'] - symbols_dict['ce_details']['buy_price']) * symbols_dict['ce_details']['qty']
+                symbols_dict['ce_details']['pnl'] = math.floor(pnl)
                 strategy_data = list(symbols_dict['ce_details'].values())
             elif each_order['tradingsymbol'][-2:] == 'PE':
                 symbols_dict['pe_details']['buy_price'] = each_order['average_price']
                 symbols_dict['pe_details']['exit_time'] = each_order['exchange_update_timestamp'].split()[1]
                 symbols_dict['pe_details']['sl_hit'] = sl_hit
-                symbols_dict['pe_details']['pnl'] = (symbols_dict['pe_details']['sell_price'] - symbols_dict['pe_details']['buy_price']) * symbols_dict['pe_details']['qty']
+                pnl = (symbols_dict['pe_details']['sell_price'] - symbols_dict['pe_details']['buy_price']) * symbols_dict['pe_details']['qty']
+                symbols_dict['pe_details']['pnl'] = math.floor(pnl)
                 strategy_data = list(symbols_dict['pe_details'].values())
-            self.trade_details_list.append(strategy_data)
             telegram_bot_sendtext(strategy_data, filter_text = False)
             self.wks.append_row(strategy_data)
         except Exception as e:
@@ -610,7 +617,56 @@ class straddles:
             telegram_bot_sendtext(f"Unexpected error while finding hedge for {symbol}. Error: "+str(e))
             traceback.print_exc()
             return None, None
- 
+
+    def get_running_pnl(self, given_time = None):
+        try:
+            current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
+            for strategy_name, strategy_orders_dict in self.trades_dict.items():
+                pnl = 0
+                qty = 0
+                lot_pnl = 0
+                legs_hit = 0
+
+                if 'ce_details' in strategy_orders_dict:
+                    order_lot_pnl = strategy_orders_dict['ce_details']['sell_price'] - strategy_orders_dict['ce_details']['buy_price']
+                    lot_pnl = lot_pnl + order_lot_pnl
+                    qty = strategy_orders_dict['ce_details']['qty']
+                    pnl = pnl + (order_lot_pnl * qty)
+                    if strategy_orders_dict['ce_details']['sl_hit']:
+                        legs_hit = legs_hit + 1
+
+                if 'pe_details' in strategy_orders_dict:
+                    order_lot_pnl = strategy_orders_dict['pe_details']['sell_price'] - strategy_orders_dict['pe_details']['buy_price']
+                    lot_pnl = lot_pnl + order_lot_pnl
+                    qty = strategy_orders_dict['pe_details']['qty']
+                    pnl = pnl + (order_lot_pnl * qty)
+                    if strategy_orders_dict['pe_details']['sl_hit']:
+                        legs_hit = legs_hit + 1
+
+                trade_dict = {
+                    'date':str(current_dt.date()),
+                    'day': str(current_dt.strftime('%A')),
+                    'strategy': strategy_name,
+                    'qty': qty,
+                    'pnl': pnl,
+                    'lot_pnl': lot_pnl,
+                    'legs_hit': legs_hit,
+                }
+            
+            if given_time:
+                trade_dict['given_time'] = given_time
+                data = list(trade_dict.values())
+                self.wks_running_pnl.append_row(data)
+            else:
+                data = list(trade_dict.values())
+                self.wks_pnl.append_row(data)
+                telegram_bot_sendtext(f"PNL of {strategy_name}: \npnl: {pnl}\nlegs hit: {legs_hit}")
+
+        except Exception as e:
+            logger.exception(f"Unexpected error while get_running_pnl. Error: "+str(e))
+            telegram_bot_sendtext(f"Unexpected error while get_running_pnl. Error: "+str(e))
+            traceback.print_exc()
+
     def main(self):
         current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
         use_mis_order = self.iso_week_day not in NRML_DAYS
@@ -631,6 +687,7 @@ class straddles:
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
             self.add_itm_strangle_to_websocket(bnf_atm_strike, 0, index = 'BANKNIFTY')
 
+        # Check and place orders
         for trades_item in self.trades_list:
             execution_day_details = [execution_days for execution_days in trades_item['execution_days'] if execution_days['day'] == self.iso_week_day]
             if len(execution_day_details) > 0:
@@ -648,7 +705,8 @@ class straddles:
                     if strategy_name not in self.trades_exited and check_if_time_is_allowed(current_dt, execution_day_details['exit_time']):
                         self.trades_exited.append(strategy_name)
                         self.cancel_orders_and_exit_position(trades_item, execution_day_details, self.trades_dict[strategy_name])
-        
+
+        # Exit orders at day end
         if not self.exit_procedure_done and current_dt.hour == 15 and current_dt.minute >=19:
             self.exit_procedure_done = True
             print("Exiting all placed orders")
@@ -677,6 +735,14 @@ class straddles:
                     if exit_quantity > 0:
                         self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity, use_limit_order = True, use_mis_order = use_mis_order)
 
+        # Get running pnl
+        if (current_dt.hour > 9 and current_dt.hour < 15) or (current_dt.hour == 15 and current_dt.minute < 15) or (current_dt.hour == 9 and current_dt.minute > 30):
+            if current_dt.hour not in self.running_pnl_done:
+                self.running_pnl_done[current_dt.hour] = []
+            if current_dt.minute % 15 not in self.running_pnl_done[current_dt.hour]:
+                self.get_running_pnl(f"{current_dt.hour} : {(current_dt.minute % 15) * 15}")
+
+        # Exit hedges
         if len(self.hedges_dict.keys()) > 0:
             dt_now = datetime.datetime.now()
             time_difference = dt_now - self.last_orders_checked_dt
@@ -690,3 +756,5 @@ class straddles:
                             qty = each_order['quantity']
                             hedge_symbol = self.hedges_dict[each_order['order_id']]
                             self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= 'sell', quantity=qty, use_limit_order = False, use_mis_order = use_mis_order)
+
+        #close
