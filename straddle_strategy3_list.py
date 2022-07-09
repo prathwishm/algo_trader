@@ -445,14 +445,14 @@ trades_list = [
         'strategy_name': '13_25_FNF_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_FNF,
-        'entry_time': [22, 54, 0],
+        'entry_time': [22, 56, 0],
         'quantity': FNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER,
         'sl_percent': 0.25,
         'strangle': True,
         'execution_days': [{
             'day': 6,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [22, 56, 4],
+            'exit_time': [22, 57, 4],
             'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
