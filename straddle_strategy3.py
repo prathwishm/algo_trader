@@ -673,14 +673,14 @@ class straddles:
                     'legs_hit': legs_hit,
                 }
             
-            if given_time:
-                trade_dict['given_time'] = given_time
-                data = list(trade_dict.values())
-                self.wks_running_pnl.append_row(data)
-            else:
-                data = list(trade_dict.values())
-                self.wks_pnl.append_row(data)
-                telegram_bot_sendtext(f"PNL of {strategy_name}: \npnl: {pnl}\nlegs hit: {legs_hit}")
+                if given_time:
+                    trade_dict['given_time'] = given_time
+                    data = list(trade_dict.values())
+                    self.wks_running_pnl.append_row(data)
+                else:
+                    data = list(trade_dict.values())
+                    self.wks_pnl.append_row(data)
+                    telegram_bot_sendtext(f"PNL of {strategy_name}: \npnl: {pnl}\nlegs hit: {legs_hit}")
 
         except Exception as e:
             logger.exception(f"Unexpected error while get_running_pnl. Error: "+str(e))
