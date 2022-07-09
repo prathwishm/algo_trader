@@ -17,7 +17,7 @@ class Class_Orders:
         self.redis = redis_obj
         self.kite_functions = kite_functions
 
-    def place_market_order(self, symbol, buy_sell, quantity, use_limit_order = True):
+    def place_market_order(self, symbol, buy_sell, quantity, use_limit_order = True, use_mis_order = True):
         try:
             kite = self.kite
             if 'NSE:' in symbol or 'NFO:' in symbol:
@@ -28,6 +28,8 @@ class Class_Orders:
                     
             elif buy_sell == "sell":
                 t_type=kite.TRANSACTION_TYPE_SELL
+
+            product_type = kite.PRODUCT_MIS if use_mis_order else kite.PRODUCT_NRML
             
             depth = None
             try:
@@ -52,7 +54,7 @@ class Class_Orders:
                                             quantity=quantity,
                                             order_type=kite.ORDER_TYPE_LIMIT,
                                             price=price,
-                                            product=kite.PRODUCT_MIS,
+                                            product=product_type,
                                             variety=kite.VARIETY_REGULAR)
             except:
                 logger.info(f'Placing market order for {symbol}')
@@ -61,7 +63,7 @@ class Class_Orders:
                                             transaction_type=t_type,
                                             quantity=quantity,
                                             order_type=kite.ORDER_TYPE_MARKET,
-                                            product=kite.PRODUCT_MIS,
+                                            product=product_type,
                                             variety=kite.VARIETY_REGULAR)
             logger.info(f'Placed {quantity} quantity {buy_sell} order for {symbol}')
             return placed_order_id
@@ -71,7 +73,7 @@ class Class_Orders:
             telegram_bot_sendtext(f'Error while placing {quantity} quantity {buy_sell} order for {symbol}. Error: '+str(e))
             return -1
 
-    def place_sl_order_for_options(self, symbol, buy_sell, trigger_price, price, quantity):
+    def place_sl_order_for_options(self, symbol, buy_sell, trigger_price, price, quantity, use_mis_order = True):
         # Place long/short stoploss order
         try:
             kite = self.kite
@@ -85,6 +87,8 @@ class Class_Orders:
             elif buy_sell == "sell":
                 t_type=kite.TRANSACTION_TYPE_SELL
 
+            product_type = kite.PRODUCT_MIS if use_mis_order else kite.PRODUCT_NRML
+
             sl_order_id = kite.place_order(tradingsymbol=symbol,
                                         exchange=kite.EXCHANGE_NFO,
                                         transaction_type=t_type,
@@ -92,7 +96,7 @@ class Class_Orders:
                                         order_type=kite.ORDER_TYPE_SL,
                                         price=price,
                                         trigger_price = trigger_price,
-                                        product=kite.PRODUCT_MIS,
+                                        product=product_type,
                                         variety=kite.VARIETY_REGULAR)
             logger.info(f'Placed {quantity} quantity {buy_sell} STOPLOSS order for {symbol}. Trigger price is {trigger_price}')
             return sl_order_id
@@ -102,7 +106,7 @@ class Class_Orders:
             return -1
 
 
-    def place_sl_order(self, symbol, buy_sell, trigger_price, quantity):
+    def place_sl_order(self, symbol, buy_sell, trigger_price, quantity, use_mis_order = True):
         # Place long/short stoploss order
         try:
             kite = self.kite
@@ -118,6 +122,8 @@ class Class_Orders:
                 t_type=kite.TRANSACTION_TYPE_SELL
                 price = convert_to_tick_price(trigger_price - (0.001 * trigger_price) )
 
+            product_type = kite.PRODUCT_MIS if use_mis_order else kite.PRODUCT_NRML
+
             sl_order_id = kite.place_order(tradingsymbol=symbol,
                                         exchange=kite.EXCHANGE_NSE,
                                         transaction_type=t_type,
@@ -125,7 +131,7 @@ class Class_Orders:
                                         order_type=kite.ORDER_TYPE_SL,
                                         price=price,
                                         trigger_price = trigger_price,
-                                        product=kite.PRODUCT_MIS,
+                                        product=product_type,
                                         variety=kite.VARIETY_REGULAR)
 
             return sl_order_id
@@ -158,7 +164,7 @@ class Class_Orders:
             logger.exception(f"Error while Cancelling order for {order_id}. Error: "+ str(e))
             return -1
 
-    def exit_position(self, symbol, buy_sell, quantity):
+    def exit_position(self, symbol, buy_sell, quantity, use_mis_order = True):
         # Exit position at best bid/offer
         try:
             kite = self.kite
@@ -178,6 +184,8 @@ class Class_Orders:
                 t_type=kite.TRANSACTION_TYPE_SELL
                 price = depth['buy'][0]['price']
 
+            product_type = kite.PRODUCT_MIS if use_mis_order else kite.PRODUCT_NRML
+
             
             placed_order_id = kite.place_order(tradingsymbol=symbol,
                                         exchange=kite.EXCHANGE_NSE,
@@ -185,7 +193,7 @@ class Class_Orders:
                                         quantity=quantity,
                                         order_type=kite.ORDER_TYPE_LIMIT,
                                         price=price,
-                                        product=kite.PRODUCT_MIS,
+                                        product=product_type,
                                         variety=kite.VARIETY_REGULAR)
 
 

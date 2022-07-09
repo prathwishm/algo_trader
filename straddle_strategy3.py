@@ -5,7 +5,7 @@ import time
 import gspread
 from convert_float_to_tick_price import convert_to_tick_price
 from telegram_bot import telegram_bot_sendtext
-from straddle_strategy3_list import trades_list
+from straddle_strategy3_list import trades_list, NRML_DAYS
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -110,6 +110,8 @@ class straddles:
                 strike_distance = 200 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
                 trigger_price_buffer = 40
 
+            use_mis_order = self.iso_week_day not in NRML_DAYS
+
             strategy_name = strategy_details['strategy_name']
             strangle = False if 'strangle' not in strategy_details else strategy_details['strangle']
             buy_hedges = False if 'hedge_multiplier' not in execution_day_details else True
@@ -130,13 +132,13 @@ class straddles:
                 qty = qty * execution_day_details['hedge_multiplier']
                 hedge_symbol_ce, hedge_token_ce = self.get_hedge_symbol(instrument_symbol_ce)
                 hedge_symbol_pe, hedge_token_pe = self.get_hedge_symbol(instrument_symbol_pe)
-                hedge_ce_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol_ce, buy_sell= "buy", quantity=qty, use_limit_order = False)
-                hedge_pe_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol_pe, buy_sell= "buy", quantity=qty, use_limit_order = False)
+                hedge_ce_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol_ce, buy_sell= "buy", quantity=qty, use_limit_order = False, use_mis_order = use_mis_order)
+                hedge_pe_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol_pe, buy_sell= "buy", quantity=qty, use_limit_order = False, use_mis_order = use_mis_order)
                 self.traded_symbols_list.extend([hedge_symbol_ce, hedge_symbol_pe])
                 time.sleep(1)
 
-            ce_order_id = self.orders_obj.place_market_order(symbol = instrument_symbol_ce, buy_sell= "sell", quantity=qty)
-            pe_order_id = self.orders_obj.place_market_order(symbol = instrument_symbol_pe, buy_sell= "sell", quantity=qty)
+            ce_order_id = self.orders_obj.place_market_order(symbol = instrument_symbol_ce, buy_sell= "sell", quantity=qty, use_limit_order = True, use_mis_order = use_mis_order)
+            pe_order_id = self.orders_obj.place_market_order(symbol = instrument_symbol_pe, buy_sell= "sell", quantity=qty, use_limit_order = True, use_mis_order = use_mis_order)
             self.traded_symbols_list.extend([instrument_symbol_ce, instrument_symbol_pe])
             time.sleep(2)
             orders_placed = []
@@ -150,7 +152,7 @@ class straddles:
                         trigger_price = convert_to_tick_price(avg_sell_price + sl_diff_price)
                         print(f"Placing CE Sl order for {strategy_details['instrument_type']} at {trigger_price}")
 
-                        ce_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=instrument_symbol_ce, buy_sell="buy", trigger_price = trigger_price, price = trigger_price + trigger_price_buffer, quantity=qty)
+                        ce_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=instrument_symbol_ce, buy_sell="buy", trigger_price = trigger_price, price = trigger_price + trigger_price_buffer, quantity=qty, use_mis_order = use_mis_order)
                         ce_dict = {
                             'date':str(current_dt.date()),
                             'strategy': strategy_name,
@@ -187,7 +189,7 @@ class straddles:
                         target_price = convert_to_tick_price(avg_sell_price * target_percent)
                         trigger_price = convert_to_tick_price(avg_sell_price + sl_diff_price)
                         print(f"Placing PE Sl order for {strategy_details['instrument_type']} at {trigger_price}")
-                        pe_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=instrument_symbol_pe, buy_sell="buy", trigger_price= trigger_price, price = trigger_price + trigger_price_buffer, quantity=qty)
+                        pe_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=instrument_symbol_pe, buy_sell="buy", trigger_price= trigger_price, price = trigger_price + trigger_price_buffer, quantity=qty, use_mis_order = use_mis_order)
                         pe_dict = {
                             'date':str(current_dt.date()),
                             'strategy': strategy_name,
@@ -240,6 +242,7 @@ class straddles:
         exited_order_ids = []
         buy_hedges = False if 'hedge_multiplier' not in execution_day_details else True
         qty = strategy_details['quantity'] * execution_day_details['quantity_multiplier']
+        use_mis_order = self.iso_week_day not in NRML_DAYS
 
         if buy_hedges:
             qty = qty * execution_day_details['hedge_multiplier']
@@ -256,7 +259,7 @@ class straddles:
                             exit_quantity = qty
                             exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
                             if exit_quantity > 0:
-                                exit_order_id = self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity)
+                                exit_order_id = self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity, use_limit_order = True, use_mis_order = use_mis_order)
                                 exited_order_ids.append(exit_order_id)
                                 exited_symbols.append(each_pos['tradingsymbol'])
                 
@@ -473,16 +476,19 @@ class straddles:
                 traceback.print_exc()
 
     def short_option_and_place_sl(self, strategy, symbol, sl_price, qty, dt, buy_hedges = False):
+
+            use_mis_order = self.iso_week_day not in NRML_DAYS
+
             if buy_hedges:
                 hedge_symbol, hedge_token = self.get_hedge_symbol(symbol)
                 if hedge_symbol == None:
                     telegram_bot_sendtext(f"Hedge Symbol is None for {symbol}. Straddle entry time is {dt}")
                 else:
-                    hedge_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= "buy", quantity=qty, use_limit_order = False)
+                    hedge_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= "buy", quantity=qty, use_limit_order = False, use_mis_order = use_mis_order)
                     self.traded_symbols_list.append(hedge_symbol)
                     time.sleep(1)
                 
-            order_id = self.orders_obj.place_market_order(symbol = symbol, buy_sell= "sell", quantity=qty)
+            order_id = self.orders_obj.place_market_order(symbol = symbol, buy_sell= "sell", quantity=qty, use_limit_order = True, use_mis_order = use_mis_order)
             current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
             self.traded_symbols_list.append(symbol)
             sl_points = 160
@@ -504,7 +510,7 @@ class straddles:
                             sl_price = round(sl_price, 1)
                             telegram_bot_sendtext(f"Placing Sl order for {strategy} - {symbol} at {sl_price}")
 
-                            sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty)
+                            sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty, use_mis_order = use_mis_order)
                             trade_dict = {'date':str(current_dt.date()), 'strategy': strategy,'entry_time':str(current_dt.time()), 'symbol': symbol,'sell_price': each_order['average_price'], 'qty': each_order['quantity'], 'sl_id': sl_order_id,
                                     'sl_price':sl_price,'buy_price': None, 'exit_time': None,'sl_hit':False}
                             if symbol[-2:] == 'CE':
@@ -626,6 +632,7 @@ class straddles:
  
     def main(self):
         current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
+        use_mis_order = self.iso_week_day not in NRML_DAYS
 
         if current_dt.hour < 14 or (current_dt.hour == 14 and current_dt.minute < 54):
             self.short_options_on_trigger()
@@ -687,7 +694,7 @@ class straddles:
                     exit_quantity = abs(each_pos['quantity'])
                     exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
                     if exit_quantity > 0:
-                        self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity)
+                        self.orders_obj.place_market_order(symbol = each_pos['tradingsymbol'], buy_sell= exit_type, quantity=exit_quantity, use_limit_order = True, use_mis_order = use_mis_order)
 
         if len(self.hedges_dict.keys()) > 0:
             dt_now = datetime.datetime.now()
@@ -701,4 +708,4 @@ class straddles:
                             self.hedge_exit_sl_order_id_list.append(each_order['order_id'])
                             qty = each_order['quantity']
                             hedge_symbol = self.hedges_dict[each_order['order_id']]
-                            self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= 'sell', quantity=qty, use_limit_order = False)
+                            self.orders_obj.place_market_order(symbol = hedge_symbol, buy_sell= 'sell', quantity=qty, use_limit_order = False, use_mis_order = use_mis_order)
