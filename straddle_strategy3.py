@@ -124,7 +124,7 @@ class straddles:
                 instrument_symbol_ce, instrument_token_ce = self.kite_functions.get_options_symbol_and_token(strategy_details['instrument_type'], atm_strike - strike_distance, 'CE')
                 instrument_symbol_pe, instrument_token_pe = self.kite_functions.get_options_symbol_and_token(strategy_details['instrument_type'], atm_strike + strike_distance, 'PE')
             else:
-                self.add_straddle_to_websocket(atm_strike, strategy_details['instrument_type'])
+                self.add_itm_strangle_to_websocket(atm_strike, 0, strategy_details['instrument_type'])
                 instrument_symbol_ce, instrument_token_ce = self.kite_functions.get_options_symbol_and_token(strategy_details['instrument_type'], atm_strike, 'CE')
                 instrument_symbol_pe, instrument_token_pe = self.kite_functions.get_options_symbol_and_token(strategy_details['instrument_type'], atm_strike, 'PE')
             
@@ -295,25 +295,6 @@ class straddles:
             telegram_bot_sendtext("Unexpected error in update_trade_details. Error: "+str(e))
             traceback.print_exc()
 
-    def add_straddle_to_websocket(self, atm_strike, index = 'BANKNIFTY'):
-        if index == 'BANKNIFTY':
-            strike_list = [atm_strike - 100, atm_strike, atm_strike+ 100]
-        elif index == 'NIFTY':
-            strike_list = [atm_strike - 50, atm_strike, atm_strike+ 50]
-
-        tokens_list = []
-        for each_strike in strike_list:
-            symbol_ce, token_ce = self.kite_functions.get_options_symbol_and_token(index, each_strike, 'CE')
-            symbol_pe, token_pe = self.kite_functions.get_options_symbol_and_token(index, each_strike, 'PE')
-            if token_pe not in self.nf_bnf_option_tokens:
-                tokens_list.extend([token_ce, token_pe])
-                self.nf_bnf_option_tokens.extend([token_ce, token_pe])
-
-        if len(tokens_list) > 0:
-            logger.info(f'ADDING {tokens_list} to websocket')
-            self.ticker.subscribe_tokens(tokens_list)
-            time.sleep(5)
-
     def add_itm_strangle_to_websocket(self, atm_strike, distance_from_atm = 200, index = 'BANKNIFTY'):
         ce_strike = atm_strike - distance_from_atm
         pe_strike = atm_strike + distance_from_atm
@@ -371,7 +352,7 @@ class straddles:
                 instrument_symbol_ce, instrument_token_ce = self.kite_functions.get_options_symbol_and_token(strategy_details['instrument_type'], atm_strike - strike_distance, 'CE')
                 instrument_symbol_pe, instrument_token_pe = self.kite_functions.get_options_symbol_and_token(strategy_details['instrument_type'], atm_strike + strike_distance, 'PE')
             else:
-                self.add_straddle_to_websocket(atm_strike, strategy_details['instrument_type'])
+                self.add_itm_strangle_to_websocket(atm_strike, 0, strategy_details['instrument_type'])
                 instrument_symbol_ce, instrument_token_ce = self.kite_functions.get_options_symbol_and_token(strategy_details['instrument_type'], atm_strike, 'CE')
                 instrument_symbol_pe, instrument_token_pe = self.kite_functions.get_options_symbol_and_token(strategy_details['instrument_type'], atm_strike, 'PE')
             
@@ -648,7 +629,7 @@ class straddles:
             self.add_itm_strangle_to_websocket(atm_strike = nf_atm_strike, distance_from_atm = 100, index = 'NIFTY')
             banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
-            self.add_straddle_to_websocket(bnf_atm_strike, index = 'BANKNIFTY')
+            self.add_itm_strangle_to_websocket(bnf_atm_strike, 0, index = 'BANKNIFTY')
 
         for trades_item in self.trades_list:
             execution_day_details = [execution_days for execution_days in trades_item['execution_days'] if execution_days['day'] == self.iso_week_day]
