@@ -118,6 +118,7 @@ class straddles:
                 trigger_price_buffer = 40
             elif strategy_details['instrument_type'] == 'FINNIFTY':
                 instrument_token = self.fin_nifty_token
+                telegram_bot_sendtext(f"instument token: {instrument_token}")
                 instrument_ltp = eval(self.redis.get(str(instrument_token)))
                 atm_strike = get_banknifty_atm_strike(instrument_ltp)
                 strike_distance = 200 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
