@@ -29,7 +29,7 @@ def insert_ticks(ticks):
             ticker_token = tick['instrument_token']
             try:
                 #print(tick)
-                if ticker_token in [256265, 260105]:
+                if ticker_token in [256265, 260105, 257801]:
                     r.set(ticker_token, tick['last_price'])
                 elif not (ticker_dict[ticker_token][-1] == tick['volume_traded'] and ticker_dict[ticker_token][-2] == tick['last_price']):
                     if type(tick['last_trade_time']) == str:
