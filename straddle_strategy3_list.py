@@ -445,7 +445,7 @@ trades_list = [
         'strategy_name': '13_25_FNF_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_FNF,
-        'entry_time': [22, 40, 0],
+        'entry_time': [22, 47, 0],
         'quantity': FNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER,
         'sl_percent': 0.25,
         'strangle': True,
