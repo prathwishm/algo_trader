@@ -68,7 +68,7 @@ class straddles:
         self.running_pnl_done = {}
 
         self.exit_15_19_done = False
-        self.add_straddle_strangle_to_websocket = False
+        self.add_straddle_strangle_to_websocket = True
         self.last_orders_checked_dt = datetime.datetime.now()
         if self.iso_week_day in [3,4]:
             self.add_straddle_strangle_to_websocket = True
@@ -706,6 +706,10 @@ class straddles:
             banknifty_ltp = eval(self.redis.get(str(self.bank_nifty_token)))
             bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
             self.add_itm_strangle_to_websocket(bnf_atm_strike, 0, index = 'BANKNIFTY')
+
+            banknifty_ltp = eval(self.redis.get(str(self.fin_nifty_token)))
+            bnf_atm_strike = get_banknifty_atm_strike(banknifty_ltp)
+            self.add_itm_strangle_to_websocket(bnf_atm_strike, 0, index = 'FINNIFTY')
 
         # Check and place orders
         for trades_item in self.trades_list:
