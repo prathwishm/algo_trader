@@ -450,9 +450,9 @@ trades_list = [
         'sl_percent': 0.25,
         'strangle': True,
         'execution_days': [{
-            'day': TUESDAY,
+            'day': 7,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 18, 4],
+            'exit_time': [22, 25, 4],
             'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
