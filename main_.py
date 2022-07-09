@@ -51,7 +51,7 @@ else:
     telegram_bot_sendtext("Logging in using Kiteext")
     kite.login_with_credentials(userid=kite_username, password=kite_password, pin=kite_pin)
 
-ticker = Ticker_class(kite=kite, tokens = [256265, 260105])
+ticker = Ticker_class(kite=kite, tokens = [256265, 260105, 257801])
 kite_func = Kite_functions(kite)
 orders_obj = Class_Orders(kite = kite, redis_obj = redis_obj, kite_functions = kite_func)
 
