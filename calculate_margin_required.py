@@ -1,4 +1,4 @@
-from straddle_strategy3_list import trades_list, NF_LOT_SIZE, BNF_LOT_SIZE
+from straddle_strategy3_list import trades_list, INSTRUMENT_BNF, INSTRUMENT_FNF, INSTRUMENT_NF
 
 MONDAY = 1
 TUESDAY = 2
@@ -8,7 +8,7 @@ FRIDAY = 5
 
 def get_required_margin(each_order, has_hedges):
 
-    if each_order['instrument_type'] == 'NIFTY':
+    if each_order['instrument_type'] == INSTRUMENT_NF:
         if each_order['strategy_type'] == 'add_to_watchlist':
             return 40000 if has_hedges else 100000
         elif each_order['strategy_type'] == 'short_straddle':
@@ -16,11 +16,20 @@ def get_required_margin(each_order, has_hedges):
         else:
             print(f"UNKNOWN strategy type {each_order['strategy_type']}")
 
-    elif each_order['instrument_type'] == 'BANKNIFTY':
+    elif each_order['instrument_type'] == INSTRUMENT_BNF:
         if each_order['strategy_type'] == 'add_to_watchlist':
             return 45000 if has_hedges else 140000
         elif each_order['strategy_type'] == 'short_straddle':
             return 60000 if has_hedges else 160000
+        else:
+            print(f"UNKNOWN strategy type {each_order['strategy_type']}")
+            return 0
+    
+    elif each_order['instrument_type'] == INSTRUMENT_FNF:
+        if each_order['strategy_type'] == 'add_to_watchlist':
+            return 52000 if has_hedges else 105000
+        elif each_order['strategy_type'] == 'short_straddle':
+            return 67000 if has_hedges else 120000
         else:
             print(f"UNKNOWN strategy type {each_order['strategy_type']}")
             return 0

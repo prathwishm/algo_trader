@@ -56,7 +56,8 @@ class straddles:
 
         self.nifty_token = kite_func.get_symbol_token('NSE:NIFTY 50')
         self.bank_nifty_token = kite_func.get_symbol_token('NSE:NIFTY BANK')
-        self.nf_bnf_option_tokens.extend([self.nifty_token, self.bank_nifty_token])
+        self.fin_nifty_token = kite_func.get_symbol_token('NSE:NIFTY FINANCIAL SERVICES')
+        self.nf_bnf_option_tokens.extend([self.nifty_token, self.bank_nifty_token, self.fin_nifty_token])
         self.iso_week_day = datetime.date.today().isoweekday()
 
         self.trades_list = trades_list
@@ -111,6 +112,12 @@ class straddles:
                 trigger_price_buffer = 20
             elif strategy_details['instrument_type'] == 'BANKNIFTY':
                 instrument_token = self.bank_nifty_token
+                instrument_ltp = eval(self.redis.get(str(instrument_token)))
+                atm_strike = get_banknifty_atm_strike(instrument_ltp)
+                strike_distance = 200 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
+                trigger_price_buffer = 40
+            elif strategy_details['instrument_type'] == 'FINNIFTY':
+                instrument_token = self.fin_nifty_token
                 instrument_ltp = eval(self.redis.get(str(instrument_token)))
                 atm_strike = get_banknifty_atm_strike(instrument_ltp)
                 strike_distance = 200 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
@@ -305,7 +312,7 @@ class straddles:
     def add_itm_strangle_to_websocket(self, atm_strike, distance_from_atm = 200, index = 'BANKNIFTY'):
         ce_strike = atm_strike - distance_from_atm
         pe_strike = atm_strike + distance_from_atm
-        if index == 'BANKNIFTY':
+        if index == 'BANKNIFTY' or index == 'FINNIFTY':
             ce_strike_list = [ce_strike - 100, ce_strike, ce_strike+ 100]
             pe_strike_list = [pe_strike - 100, pe_strike, pe_strike+ 100]
         elif index == 'NIFTY':
@@ -341,6 +348,13 @@ class straddles:
 
             elif strategy_details['instrument_type'] == 'BANKNIFTY':
                 instrument_token = self.bank_nifty_token
+                instrument_ltp = eval(self.redis.get(str(instrument_token)))
+                atm_strike = get_banknifty_atm_strike(instrument_ltp)
+                strike_distance = 200 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
+                sl_percent = 0.2 if 'sl_percent' not in strategy_details else strategy_details['sl_percent']
+
+            elif strategy_details['instrument_type'] == 'FINNIFTY':
+                instrument_token = self.fin_nifty_token
                 instrument_ltp = eval(self.redis.get(str(instrument_token)))
                 atm_strike = get_banknifty_atm_strike(instrument_ltp)
                 strike_distance = 200 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
@@ -553,6 +567,12 @@ class straddles:
                 strike_difference = 100
                 nifty_ltp = eval(self.redis.get(str(self.nifty_token)))
                 atm_strike = get_nifty_atm_strike(nifty_ltp)
+            elif underlying_name == 'FINNIFTY':
+                starting_distance = 200
+                strike_difference = 100
+                fin_nifty_ltp = eval(self.redis.get(str(self.fin_nifty_token)))
+                atm_strike = get_banknifty_atm_strike(fin_nifty_ltp)
+            
             ce_pe = symbol[-2:]
             otm_symbols_list = []
             if ce_pe == 'CE':
@@ -569,7 +589,7 @@ class straddles:
                     if nf_bnf_symbol_ce == None:
                         break
                     #filter out 100, 400 and 900 strikes. idx is -5 because ends with CE
-                    if not (underlying_name == 'BANKNIFTY' and str(otm_strike)[-5] in ['1', '4', '9']):
+                    if not ((underlying_name == 'BANKNIFTY' or underlying_name == 'FINNIFTY') and str(otm_strike)[-5] in ['1', '4', '9']):
                         otm_symbols_list.append('NFO:'+nf_bnf_symbol_ce)
                     otm_strike += strike_difference
             
@@ -587,7 +607,7 @@ class straddles:
                     if nf_bnf_symbol_pe == None:
                         break
                     #filter out 100, 400 and 900 strikes. idx is -5 because ends with PE
-                    if not (underlying_name == 'BANKNIFTY' and str(otm_strike)[-5] in ['1', '4', '9']):
+                    if not ((underlying_name == 'BANKNIFTY' or underlying_name == 'FINNIFTY') and str(otm_strike)[-5] in ['1', '4', '9']):
                         otm_symbols_list.append('NFO:'+nf_bnf_symbol_pe)
                     otm_strike -= strike_difference
                 
