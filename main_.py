@@ -22,9 +22,9 @@ logger.addHandler(file_handler)
 
 holidays = ["2022-01-26", "2022-03-1", "2022-03-18", "2022-04-14", "2022-04-15", "2022-05-03", "2022-08-09", "2022-08-15", "2022-08-31", "2022-10-05", "2022-10-24", "2022-10-26", "2022-11-08"]
 #If today is a holiday or Saturday/Sunday quit
-if str(datetime.date.today()) in holidays or datetime.date.today().isoweekday() > 5:
-    telegram_bot_sendtext('Today is a trading holiday. Exiting...')
-    quit()
+# if str(datetime.date.today()) in holidays or datetime.date.today().isoweekday() > 5:
+#     telegram_bot_sendtext('Today is a trading holiday. Exiting...')
+#     quit()
 
 redis_server = subprocess.Popen('redis-server --port 6380', shell=True)
 redis_obj = Redis(host='localhost', port=6380, decode_responses=True)
@@ -64,7 +64,7 @@ time.sleep(5)
 
 current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
 error_count = 0
-while current_dt.hour <= 15 and not (current_dt.hour >= 15 and current_dt.minute >= 30):
+while current_dt.hour <= 24 and not (current_dt.hour >= 24 and current_dt.minute >= 30):
     try:
         current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
         if current_dt.hour == 15 and current_dt.minute >= 21:
