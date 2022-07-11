@@ -71,10 +71,10 @@ def calculate_margin():
                     'margin_required': margin_required * quantity
                 })
 
-    print(f"margin required for MONDAY = {peak_margin[MONDAY]}")
-    print(f"margin required for TUESDAY = {peak_margin[TUESDAY]}")
-    print(f"margin required for WEDNESDAY = {peak_margin[WEDNESDAY]}")
-    print(f"margin required for THRUSDAY = {peak_margin[THRUSDAY]}")
-    print(f"margin required for FRIDAY = {peak_margin[FRIDAY]}")
+    print(f"# margin required for MONDAY = {peak_margin[MONDAY]}")
+    print(f"# margin required for TUESDAY = {peak_margin[TUESDAY]}")
+    print(f"# margin required for WEDNESDAY = {peak_margin[WEDNESDAY]}")
+    print(f"# margin required for THRUSDAY = {peak_margin[THRUSDAY]}")
+    print(f"# margin required for FRIDAY = {peak_margin[FRIDAY]}")
 
 calculate_margin()

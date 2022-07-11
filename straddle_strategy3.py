@@ -20,6 +20,12 @@ WEDNESDAY = 3
 THRUSDAY = 4
 FRIDAY = 5
 
+LOT_SIZE = {
+    'NIFTY': 50,
+    'BANKNIFTY': 25,
+    'FINNIFTY': 40
+}
+
 def get_nifty_atm_strike(ltp):
     diff = ltp % 50
     if diff > 25:
@@ -168,12 +174,15 @@ class straddles:
                         ce_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=instrument_symbol_ce, buy_sell="buy", trigger_price = trigger_price, price = trigger_price + trigger_price_buffer, quantity=qty, use_mis_order = use_mis_order)
                         ce_dict = {
                             'date':str(current_dt.date()),
+                            'day':str(current_dt.strftime('%A')),
                             'strategy': strategy_name,
                             'entry_time':str(current_dt.time()),
                             'symbol': instrument_symbol_ce,
+                            'token': instrument_token_ce,
                             'sell_price': each_order['average_price'],
                             'qty': each_order['quantity'],
                             'sl_id': ce_sl_order_id,
+                            'instrument_type': strategy_details['instrument_type'],
                             'sl_price':trigger_price,
                             'buy_price': None,
                             'exit_time': None,
@@ -205,12 +214,15 @@ class straddles:
                         pe_sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=instrument_symbol_pe, buy_sell="buy", trigger_price= trigger_price, price = trigger_price + trigger_price_buffer, quantity=qty, use_mis_order = use_mis_order)
                         pe_dict = {
                             'date':str(current_dt.date()),
+                            'day':str(current_dt.strftime('%A')),
                             'strategy': strategy_name,
                             'entry_time':str(current_dt.time()),
                             'symbol': instrument_symbol_pe,
+                            'token': instrument_token_pe,
                             'sell_price': each_order['average_price'],
                             'qty': each_order['quantity'],
                             'sl_id': pe_sl_order_id,
+                            'instrument_type': strategy_details['instrument_type'],
                             'sl_price':trigger_price,
                             'buy_price': None,
                             'exit_time': None,
@@ -389,6 +401,7 @@ class straddles:
                 'trigger_price': ce_trigger_price,
                 'datetime': datetime.datetime.now(),
                 'opposite_key':strategy_name + 'pe',
+                'instrument_type': strategy_details['instrument_type'],
                 'buy_hedges': buy_hedges,
                 'quantity':qty
             }
@@ -399,6 +412,7 @@ class straddles:
                 'trigger_price': pe_trigger_price,
                 'datetime': datetime.datetime.now(),
                 'opposite_key':strategy_name + 'ce',
+                'instrument_type': strategy_details['instrument_type'],
                 'buy_hedges': buy_hedges,
                 'quantity':qty
             }
@@ -425,14 +439,16 @@ class straddles:
                     opposite_key = values_dict['opposite_key']
                     buy_hedges = values_dict['buy_hedges']
                     list_of_tokens_to_pop_from_watchlist.append(opposite_key)
-                    symbol = self.watchlist[opposite_key]['symbol']
+                    # symbol = self.watchlist[opposite_key]['symbol']
+                    item = self.watchlist[opposite_key]
+                    # token = self.watchlist[opposite_key]['token']
                     sl_price = self.watchlist[opposite_key]['trigger_price']
                     # if '9' in strategy_option:
                     #     sl_price = min(self.watchlist[opposite_key]['trigger_price'], tick_list[1]+80)
                     # else:
                     #     sl_price = min(self.watchlist[opposite_key]['trigger_price'], tick_list[1]+120)
                     qty = self.watchlist[opposite_key]['quantity']
-                    self.short_option_and_place_sl(strategy = strategy_option[:-2],symbol=symbol, sl_price=sl_price, qty=qty, dt = values_dict['datetime'], buy_hedges=buy_hedges)
+                    self.short_option_and_place_sl(strategy = strategy_option[:-2],item=item, sl_price=sl_price, qty=qty, dt = values_dict['datetime'], buy_hedges=buy_hedges)
 
                     #self.watchlist.pop(opposite_key)
                     #list_of_tokens_to_pop_from_watchlist.append(opposite_key)
@@ -477,9 +493,12 @@ class straddles:
                 telegram_bot_sendtext(f"Unexpected error while popping {strat_option} from target_watchlist. Error: "+str(e))
                 traceback.print_exc()
 
-    def short_option_and_place_sl(self, strategy, symbol, sl_price, qty, dt, buy_hedges = False):
+    def short_option_and_place_sl(self, strategy, item, sl_price, qty, dt, buy_hedges = False):
 
             use_mis_order = self.iso_week_day not in NRML_DAYS
+            symbol = self.watchlist[item]['symbol']
+            token = self.watchlist[item]['token']
+            instrument_type = self.watchlist[item]['instrument_type']
 
             if buy_hedges:
                 hedge_symbol, hedge_token = self.get_hedge_symbol(symbol)
@@ -522,12 +541,15 @@ class straddles:
                             
                             order_dict = {
                                 'date':str(current_dt.date()),
+                                'day':str(current_dt.strftime('%A')),
                                 'strategy': strategy,
                                 'entry_time':str(current_dt.time()),
                                 'symbol': symbol,
+                                'token': token,
                                 'sell_price': avg_sell_price,
                                 'qty': qty,
                                 'sl_id': sl_order_id,
+                                'instrument_type': instrument_type,
                                 'sl_price':sl_price,
                                 'buy_price': None,
                                 'exit_time': None,
@@ -648,16 +670,25 @@ class straddles:
                 legs_hit = 0
 
                 if 'ce_details' in strategy_orders_dict:
-                    order_lot_pnl = strategy_orders_dict['ce_details']['sell_price'] - strategy_orders_dict['ce_details']['buy_price']
-                    lot_pnl = lot_pnl + order_lot_pnl
+                    if 'buy_price' in strategy_orders_dict['ce_details']:
+                        order_lot_pnl = strategy_orders_dict['ce_details']['sell_price'] - strategy_orders_dict['ce_details']['buy_price']
+                    else:
+                        ltp_data = self.kite.ltp(strategy_orders_dict['ce_details']['token'])
+                        order_lot_pnl = strategy_orders_dict['ce_details']['sell_price'] - ltp_data
+
+                    lot_pnl = (lot_pnl + order_lot_pnl) * LOT_SIZE[strategy_orders_dict['ce_details']['instrument_type']]
                     qty = strategy_orders_dict['ce_details']['qty']
                     pnl = pnl + (order_lot_pnl * qty)
                     if strategy_orders_dict['ce_details']['sl_hit']:
                         legs_hit = legs_hit + 1
 
                 if 'pe_details' in strategy_orders_dict:
-                    order_lot_pnl = strategy_orders_dict['pe_details']['sell_price'] - strategy_orders_dict['pe_details']['buy_price']
-                    lot_pnl = lot_pnl + order_lot_pnl
+                    if 'buy_price' in strategy_orders_dict['ce_details']:
+                        order_lot_pnl = strategy_orders_dict['pe_details']['sell_price'] - strategy_orders_dict['pe_details']['buy_price']
+                    else:
+                        ltp_data = self.kite.ltp(strategy_orders_dict['pe_details']['token'])
+                        order_lot_pnl = strategy_orders_dict['pe_details']['sell_price'] - ltp_data
+                    lot_pnl = (lot_pnl + order_lot_pnl) * LOT_SIZE[strategy_orders_dict['pe_details']['instrument_type']]
                     qty = strategy_orders_dict['pe_details']['qty']
                     pnl = pnl + (order_lot_pnl * qty)
                     if strategy_orders_dict['pe_details']['sl_hit']:
@@ -668,8 +699,8 @@ class straddles:
                     'day': str(current_dt.strftime('%A')),
                     'strategy': strategy_name,
                     'qty': qty,
-                    'pnl': pnl,
-                    'lot_pnl': lot_pnl,
+                    'pnl': math.floor(pnl),
+                    'lot_pnl': math.floor(lot_pnl),
                     'legs_hit': legs_hit,
                 }
             
@@ -760,6 +791,7 @@ class straddles:
             if current_dt.hour not in self.running_pnl_done:
                 self.running_pnl_done[current_dt.hour] = []
             if current_dt.minute % 15 not in self.running_pnl_done[current_dt.hour]:
+                self.running_pnl_done[current_dt.hour].append(current_dt.minute % 15)
                 self.get_running_pnl(f"{current_dt.hour} : {(current_dt.minute % 15) * 15}")
 
         # Exit hedges
