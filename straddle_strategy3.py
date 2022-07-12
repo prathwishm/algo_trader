@@ -670,7 +670,7 @@ class straddles:
                 legs_hit = 0
 
                 if 'ce_details' in strategy_orders_dict:
-                    if 'buy_price' in strategy_orders_dict['ce_details']:
+                    if strategy_orders_dict['ce_details']['buy_price'] != None:
                         order_lot_pnl = strategy_orders_dict['ce_details']['sell_price'] - strategy_orders_dict['ce_details']['buy_price']
                     else:
                         ltp_data = self.kite.ltp(strategy_orders_dict['ce_details']['token'])
@@ -683,7 +683,7 @@ class straddles:
                         legs_hit = legs_hit + 1
 
                 if 'pe_details' in strategy_orders_dict:
-                    if 'buy_price' in strategy_orders_dict['ce_details']:
+                    if strategy_orders_dict['pe_details']['buy_price'] != None:
                         order_lot_pnl = strategy_orders_dict['pe_details']['sell_price'] - strategy_orders_dict['pe_details']['buy_price']
                     else:
                         ltp_data = self.kite.ltp(strategy_orders_dict['pe_details']['token'])

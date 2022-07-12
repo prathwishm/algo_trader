@@ -77,7 +77,8 @@ if __name__ == '__main__':
     redis_server = Popen('redis-server --port 6380', shell=True)
     time.sleep(1)
     ticks = [{'instrument_token': 256265,'last_price': 17.45,},
-            {'instrument_token': 260105,'last_price': 37.45,}]
+            {'instrument_token': 260105,'last_price': 37.45,},
+            {'instrument_token': 257801,'last_price': 27.45,}]
     insert_ticks2(ticks)
     print("Data inserted into redis successfully")
     redis_server.kill()
