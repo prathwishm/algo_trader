@@ -26,11 +26,11 @@ INSTRUMENT_NF = 'NIFTY'
 INSTRUMENT_BNF = 'BANKNIFTY'
 INSTRUMENT_FNF = 'FINNIFTY'
 
-# margin required for MONDAY = 1655000.0
-# margin required for TUESDAY = 1716400.0
-# margin required for WEDNESDAY = 1715000.0
-# margin required for THRUSDAY = 1925000.0
-# margin required for FRIDAY = 1760000.0
+# margin required for MONDAY = 1230000.0
+# margin required for TUESDAY = 1439600.0
+# margin required for WEDNESDAY = 1505000.0
+# margin required for THRUSDAY = 1805000.0
+# margin required for FRIDAY = 1700000.0
 
 # DEFAULT SL NIFTY = 0.25
 # DEFAULT SL BANKNIFTY = 0.2

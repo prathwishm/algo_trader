@@ -496,9 +496,9 @@ class straddles:
     def short_option_and_place_sl(self, strategy, item, sl_price, qty, dt, buy_hedges = False):
 
             use_mis_order = self.iso_week_day not in NRML_DAYS
-            symbol = self.watchlist[item]['symbol']
-            token = self.watchlist[item]['token']
-            instrument_type = self.watchlist[item]['instrument_type']
+            symbol = [item]['symbol']
+            token = [item]['token']
+            instrument_type = [item]['instrument_type']
 
             if buy_hedges:
                 hedge_symbol, hedge_token = self.get_hedge_symbol(symbol)
