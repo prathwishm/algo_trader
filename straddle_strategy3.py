@@ -671,26 +671,27 @@ class straddles:
 
                 if 'ce_details' in strategy_orders_dict:
                     if strategy_orders_dict['ce_details']['buy_price'] != None:
-                        order_lot_pnl = strategy_orders_dict['ce_details']['sell_price'] - strategy_orders_dict['ce_details']['buy_price']
+                        per_qty_pnl = strategy_orders_dict['ce_details']['sell_price'] - strategy_orders_dict['ce_details']['buy_price']
                     else:
                         ltp_data = self.kite.ltp(strategy_orders_dict['ce_details']['token'])
-                        order_lot_pnl = strategy_orders_dict['ce_details']['sell_price'] - ltp_data
+                        per_qty_pnl = strategy_orders_dict['ce_details']['sell_price'] - ltp_data
 
-                    lot_pnl = (lot_pnl + order_lot_pnl) * LOT_SIZE[strategy_orders_dict['ce_details']['instrument_type']]
+                    lot_pnl = lot_pnl + (per_qty_pnl * LOT_SIZE[strategy_orders_dict['ce_details']['instrument_type']])
                     qty = strategy_orders_dict['ce_details']['qty']
-                    pnl = pnl + (order_lot_pnl * qty)
+                    pnl = pnl + (per_qty_pnl * qty)
                     if strategy_orders_dict['ce_details']['sl_hit']:
                         legs_hit = legs_hit + 1
 
                 if 'pe_details' in strategy_orders_dict:
                     if strategy_orders_dict['pe_details']['buy_price'] != None:
-                        order_lot_pnl = strategy_orders_dict['pe_details']['sell_price'] - strategy_orders_dict['pe_details']['buy_price']
+                        per_qty_pnl = strategy_orders_dict['pe_details']['sell_price'] - strategy_orders_dict['pe_details']['buy_price']
                     else:
                         ltp_data = self.kite.ltp(strategy_orders_dict['pe_details']['token'])
-                        order_lot_pnl = strategy_orders_dict['pe_details']['sell_price'] - ltp_data
-                    lot_pnl = (lot_pnl + order_lot_pnl) * LOT_SIZE[strategy_orders_dict['pe_details']['instrument_type']]
+                        per_qty_pnl = strategy_orders_dict['pe_details']['sell_price'] - ltp_data
+
+                    lot_pnl = lot_pnl + (per_qty_pnl * LOT_SIZE[strategy_orders_dict['pe_details']['instrument_type']])
                     qty = strategy_orders_dict['pe_details']['qty']
-                    pnl = pnl + (order_lot_pnl * qty)
+                    pnl = pnl + (per_qty_pnl * qty)
                     if strategy_orders_dict['pe_details']['sl_hit']:
                         legs_hit = legs_hit + 1
 
