@@ -673,8 +673,9 @@ class straddles:
                     if strategy_orders_dict['ce_details']['buy_price'] != None:
                         per_qty_pnl = strategy_orders_dict['ce_details']['sell_price'] - strategy_orders_dict['ce_details']['buy_price']
                     else:
-                        ltp_data = self.kite.ltp(strategy_orders_dict['ce_details']['token'])
-                        per_qty_pnl = strategy_orders_dict['ce_details']['sell_price'] - ltp_data
+                        ltp_dict = self.kite.ltp(strategy_orders_dict['ce_details']['token'])
+                        symbol_ltp = ltp_dict['NFO:'+strategy_orders_dict['ce_details']['symbol']]['last_price']
+                        per_qty_pnl = strategy_orders_dict['ce_details']['sell_price'] - symbol_ltp
 
                     lot_pnl = lot_pnl + (per_qty_pnl * LOT_SIZE[strategy_orders_dict['ce_details']['instrument_type']])
                     qty = strategy_orders_dict['ce_details']['qty']
@@ -686,7 +687,8 @@ class straddles:
                     if strategy_orders_dict['pe_details']['buy_price'] != None:
                         per_qty_pnl = strategy_orders_dict['pe_details']['sell_price'] - strategy_orders_dict['pe_details']['buy_price']
                     else:
-                        ltp_data = self.kite.ltp(strategy_orders_dict['pe_details']['token'])
+                        ltp_dict = self.kite.ltp(strategy_orders_dict['pe_details']['token'])
+                        symbol_ltp = ltp_dict['NFO:'+strategy_orders_dict['pe_details']['symbol']]['last_price']
                         per_qty_pnl = strategy_orders_dict['pe_details']['sell_price'] - ltp_data
 
                     lot_pnl = lot_pnl + (per_qty_pnl * LOT_SIZE[strategy_orders_dict['pe_details']['instrument_type']])
@@ -791,9 +793,10 @@ class straddles:
         if (current_dt.hour > 9 and current_dt.hour < 15) or (current_dt.hour == 15 and current_dt.minute < 15) or (current_dt.hour == 9 and current_dt.minute > 30):
             if current_dt.hour not in self.running_pnl_done:
                 self.running_pnl_done[current_dt.hour] = []
-            if current_dt.minute % 15 not in self.running_pnl_done[current_dt.hour]:
-                self.running_pnl_done[current_dt.hour].append(current_dt.minute % 15)
-                self.get_running_pnl(f"{current_dt.hour} : {(current_dt.minute % 15) * 15}")
+            current_quater_of_hour = math.floor(current_dt.minute / 15)
+            if current_quater_of_hour not in self.running_pnl_done[current_dt.hour]:
+                self.running_pnl_done[current_dt.hour].append(current_quater_of_hour)
+                self.get_running_pnl(f"{current_dt.hour} : {current_quater_of_hour * 15}")
 
         # Exit hedges
         if len(self.hedges_dict.keys()) > 0:
