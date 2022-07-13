@@ -126,7 +126,7 @@ class straddles:
                 instrument_token = self.fin_nifty_token
                 instrument_ltp = eval(self.redis.get(str(instrument_token)))
                 atm_strike = get_banknifty_atm_strike(instrument_ltp)
-                strike_distance = 200 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
+                strike_distance = 100 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
                 trigger_price_buffer = 40
 
             use_mis_order = self.iso_week_day not in NRML_DAYS
@@ -369,7 +369,7 @@ class straddles:
                 instrument_token = self.fin_nifty_token
                 instrument_ltp = eval(self.redis.get(str(instrument_token)))
                 atm_strike = get_banknifty_atm_strike(instrument_ltp)
-                strike_distance = 200 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
+                strike_distance = 100 if 'strike_distance' not in strategy_details else strategy_details['strike_distance']
                 sl_percent = 0.2 if 'sl_percent' not in strategy_details else strategy_details['sl_percent']
 
             strategy_name = strategy_details['strategy_name']

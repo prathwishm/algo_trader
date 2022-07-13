@@ -58,7 +58,7 @@ trades_list = [
         }, {
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 15, 4],
+            'exit_time': [15, 45, 4],
             'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
@@ -171,7 +171,7 @@ trades_list = [
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 8, 4],
+            'exit_time': [15, 48, 4],
             'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
@@ -221,7 +221,7 @@ trades_list = [
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 5, 4],
+            'exit_time': [15, 45, 4],
             'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
@@ -261,7 +261,7 @@ trades_list = [
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 10, 4],
+            'exit_time': [15, 40, 4],
             'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
@@ -340,7 +340,7 @@ trades_list = [
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 17, 4],
+            'exit_time': [15, 47, 4],
             'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
@@ -380,7 +380,7 @@ trades_list = [
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 12, 4],
+            'exit_time': [15, 42, 4],
             'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
@@ -413,7 +413,7 @@ trades_list = [
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 18, 4],
+            'exit_time': [15, 48, 4],
             'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
