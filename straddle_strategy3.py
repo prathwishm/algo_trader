@@ -532,8 +532,22 @@ class straddles:
                             telegram_bot_sendtext(f"Placing Sl order for {strategy} - {symbol} at {sl_price}")
 
                             sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty, use_mis_order = use_mis_order)
-                            trade_dict = {'date':str(current_dt.date()), 'strategy': strategy,'entry_time':str(current_dt.time()), 'symbol': symbol,'sell_price': each_order['average_price'], 'qty': each_order['quantity'], 'sl_id': sl_order_id,
-                                    'sl_price':sl_price,'buy_price': None, 'exit_time': None,'sl_hit':False}
+                            trade_dict = {
+                                'date':str(current_dt.date()),
+                                'day':str(current_dt.strftime('%A')),
+                                'strategy': strategy,
+                                'entry_time':str(current_dt.time()),
+                                'symbol': symbol,
+                                'token': token,
+                                'sell_price': each_order['average_price'],
+                                'qty': each_order['quantity'],
+                                'sl_id': sl_order_id,
+                                'instrument_type': instrument_type,
+                                'sl_price':sl_price,
+                                'buy_price': None,
+                                'exit_time': None,
+                                'sl_hit':False
+                            }
                             if symbol[-2:] == 'CE':
                                 key_name = 'ce_details'
                             else:
@@ -541,7 +555,6 @@ class straddles:
                             
                             order_dict = {
                                 'date':str(current_dt.date()),
-                                'day':str(current_dt.strftime('%A')),
                                 'strategy': strategy,
                                 'entry_time':str(current_dt.time()),
                                 'symbol': symbol,
@@ -663,6 +676,7 @@ class straddles:
     def get_running_pnl(self, given_time = None):
         try:
             current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
+            msg_str = "Running PNL :: PNL :: Legs hit"
             for strategy_name, strategy_orders_dict in self.trades_dict.items():
                 pnl = 0
                 qty = 0
@@ -673,8 +687,9 @@ class straddles:
                     if strategy_orders_dict['ce_details']['buy_price'] != None:
                         per_qty_pnl = strategy_orders_dict['ce_details']['sell_price'] - strategy_orders_dict['ce_details']['buy_price']
                     else:
-                        ltp_dict = self.kite.ltp(strategy_orders_dict['ce_details']['token'])
-                        symbol_ltp = ltp_dict['NFO:'+strategy_orders_dict['ce_details']['symbol']]['last_price']
+                        symbol = strategy_orders_dict['ce_details']['symbol']
+                        ltp_dict = self.kite.ltp([['NFO:' + symbol]])
+                        symbol_ltp = ltp_dict['NFO:'+ symbol]['last_price']
                         per_qty_pnl = strategy_orders_dict['ce_details']['sell_price'] - symbol_ltp
 
                     lot_pnl = lot_pnl + (per_qty_pnl * LOT_SIZE[strategy_orders_dict['ce_details']['instrument_type']])
@@ -687,9 +702,10 @@ class straddles:
                     if strategy_orders_dict['pe_details']['buy_price'] != None:
                         per_qty_pnl = strategy_orders_dict['pe_details']['sell_price'] - strategy_orders_dict['pe_details']['buy_price']
                     else:
-                        ltp_dict = self.kite.ltp(strategy_orders_dict['pe_details']['token'])
-                        symbol_ltp = ltp_dict['NFO:'+strategy_orders_dict['pe_details']['symbol']]['last_price']
-                        per_qty_pnl = strategy_orders_dict['pe_details']['sell_price'] - ltp_data
+                        symbol = strategy_orders_dict['pe_details']['symbol']
+                        ltp_dict = self.kite.ltp([['NFO:' + symbol]])
+                        symbol_ltp = ltp_dict['NFO:'+ symbol]['last_price']
+                        per_qty_pnl = strategy_orders_dict['pe_details']['sell_price'] - symbol_ltp
 
                     lot_pnl = lot_pnl + (per_qty_pnl * LOT_SIZE[strategy_orders_dict['pe_details']['instrument_type']])
                     qty = strategy_orders_dict['pe_details']['qty']
@@ -714,7 +730,9 @@ class straddles:
                 else:
                     data = list(trade_dict.values())
                     self.wks_pnl.append_row(data)
-                    telegram_bot_sendtext(f"PNL of {strategy_name}: \npnl: {pnl}\nlegs hit: {legs_hit}")
+                    msg_str = f"\n{strategy_name} :: {pnl} :: {legs_hit}"
+
+            telegram_bot_sendtext(msg_str)
 
         except Exception as e:
             logger.exception(f"Unexpected error while get_running_pnl. Error: "+str(e))
@@ -793,10 +811,10 @@ class straddles:
         if (current_dt.hour > 9 and current_dt.hour < 15) or (current_dt.hour == 15 and current_dt.minute < 15) or (current_dt.hour == 9 and current_dt.minute > 30):
             if current_dt.hour not in self.running_pnl_done:
                 self.running_pnl_done[current_dt.hour] = []
-            current_quater_of_hour = math.floor(current_dt.minute / 15)
+            current_quater_of_hour = math.floor(current_dt.minute / 30)
             if current_quater_of_hour not in self.running_pnl_done[current_dt.hour]:
                 self.running_pnl_done[current_dt.hour].append(current_quater_of_hour)
-                self.get_running_pnl(f"{current_dt.hour} : {current_quater_of_hour * 15}")
+                self.get_running_pnl(f"{current_dt.hour} : {current_quater_of_hour * 30}")
 
         # Exit hedges
         if len(self.hedges_dict.keys()) > 0:
@@ -806,7 +824,7 @@ class straddles:
                 self.last_orders_checked_dt = dt_now
                 for each_order in self.kite.orders():
                     if each_order['order_id'] in self.hedges_dict.keys():
-                        if each_order['status'] in ['COMPLETE', 'CANCELLED'] and each_order['order_id'] not in self.hedge_exit_sl_order_id_list:
+                        if each_order['status'] in ['COMPLETE'] and each_order['order_id'] not in self.hedge_exit_sl_order_id_list:
                             #if each_order['filled_quantity'] == each_order['quantity']:
                             self.hedge_exit_sl_order_id_list.append(each_order['order_id'])
                             qty = each_order['quantity']

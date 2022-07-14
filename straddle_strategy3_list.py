@@ -26,7 +26,7 @@ INSTRUMENT_NF = 'NIFTY'
 INSTRUMENT_BNF = 'BANKNIFTY'
 INSTRUMENT_FNF = 'FINNIFTY'
 
-# margin required for MONDAY = 1230000.0
+# margin required for MONDAY = 1425000.0
 # margin required for TUESDAY = 1439600.0
 # margin required for WEDNESDAY = 1505000.0
 # margin required for THRUSDAY = 1805000.0
@@ -245,7 +245,8 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
             'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
-            'quantity_multiplier': 1
+            # Updated quantity multiplier to use margin
+            'quantity_multiplier': 2
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
@@ -402,7 +403,7 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
-            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': EXPIRY_STRATEGY_LOT_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
