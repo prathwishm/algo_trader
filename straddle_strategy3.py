@@ -722,6 +722,8 @@ class straddles:
                     'lot_pnl': math.floor(lot_pnl),
                     'legs_hit': legs_hit,
                 }
+
+                msg_str = msg_str + f"\n{strategy_name} :: {math.floor(pnl)} :: {legs_hit}"
             
                 if given_time:
                     trade_dict['given_time'] = given_time
@@ -730,7 +732,6 @@ class straddles:
                 else:
                     data = list(trade_dict.values())
                     self.wks_pnl.append_row(data)
-                    msg_str = f"\n{strategy_name} :: {pnl} :: {legs_hit}"
 
             telegram_bot_sendtext(msg_str)
 
