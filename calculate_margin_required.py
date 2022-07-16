@@ -49,6 +49,28 @@ def calculate_margin():
         THRUSDAY: [],
         FRIDAY: [],
     }
+    executed_orders = {
+        MONDAY: {
+            'strategy_list' : "",
+            'count': 0,
+        },
+        TUESDAY: {
+            'strategy_list' : "",
+            'count': 0,
+        },
+        WEDNESDAY: {
+            'strategy_list' : "",
+            'count': 0,
+        },
+        THRUSDAY: {
+            'strategy_list' : "",
+            'count': 0,
+        },
+        FRIDAY: {
+            'strategy_list' : "",
+            'count': 0,
+        },
+    }
     for each_order in trades_list:
         for each_day in each_order['execution_days']:
             given_day = each_day['day']
@@ -65,11 +87,22 @@ def calculate_margin():
             quantity = (each_order['quantity'] * each_day['quantity_multiplier'] * hedge_multiplier) / lot_size
             peak_margin[given_day] = peak_margin[given_day] + (margin_required * quantity)
 
+            executed_orders[given_day]['strategy_list'] = executed_orders[given_day]['strategy_list'] + f"\n# {each_order['strategy_name']} - {each_order['entry_time'][0]}:{each_order['entry_time'][1]}"
+            executed_orders[given_day]['count'] = executed_orders[given_day]['count'] + 1
+
             if 'exit_time' in each_day:
                 exitable_orders[given_day].append({
                     'exit_time': each_day['exit_time'],
                     'margin_required': margin_required * quantity
                 })
+
+    print(f"# MONDAY TRADES = {executed_orders[MONDAY]['count']} {executed_orders[MONDAY]['strategy_list']}")
+    print(f"# TUESDAY TRADES = {executed_orders[TUESDAY]['count']} {executed_orders[TUESDAY]['strategy_list']}")
+    print(f"# WEDNESDAY TRADES = {executed_orders[WEDNESDAY]['count']} {executed_orders[WEDNESDAY]['strategy_list']}")
+    print(f"# THRUSDAY TRADES = {executed_orders[THRUSDAY]['count']} {executed_orders[THRUSDAY]['strategy_list']}")
+    print(f"# FRIDAY TRADES = {executed_orders[FRIDAY]['count']} {executed_orders[FRIDAY]['strategy_list']}")
+
+    print('\n################################\n')
 
     print(f"# margin required for MONDAY = {peak_margin[MONDAY]}")
     print(f"# margin required for TUESDAY = {peak_margin[TUESDAY]}")
