@@ -96,11 +96,11 @@ def calculate_margin():
                     'margin_required': margin_required * quantity
                 })
 
-    print(f"# MONDAY TRADES = {executed_orders[MONDAY]['count']} {executed_orders[MONDAY]['strategy_list']}")
-    print(f"# TUESDAY TRADES = {executed_orders[TUESDAY]['count']} {executed_orders[TUESDAY]['strategy_list']}")
-    print(f"# WEDNESDAY TRADES = {executed_orders[WEDNESDAY]['count']} {executed_orders[WEDNESDAY]['strategy_list']}")
-    print(f"# THRUSDAY TRADES = {executed_orders[THRUSDAY]['count']} {executed_orders[THRUSDAY]['strategy_list']}")
-    print(f"# FRIDAY TRADES = {executed_orders[FRIDAY]['count']} {executed_orders[FRIDAY]['strategy_list']}")
+    # print(f"# MONDAY TRADES = {executed_orders[MONDAY]['count']} {executed_orders[MONDAY]['strategy_list']}\n")
+    # print(f"# TUESDAY TRADES = {executed_orders[TUESDAY]['count']} {executed_orders[TUESDAY]['strategy_list']}\n")
+    # print(f"# WEDNESDAY TRADES = {executed_orders[WEDNESDAY]['count']} {executed_orders[WEDNESDAY]['strategy_list']}\n")
+    # print(f"# THRUSDAY TRADES = {executed_orders[THRUSDAY]['count']} {executed_orders[THRUSDAY]['strategy_list']}\n")
+    # print(f"# FRIDAY TRADES = {executed_orders[FRIDAY]['count']} {executed_orders[FRIDAY]['strategy_list']}\n")
 
     print('\n################################\n')
 

@@ -26,11 +26,11 @@ INSTRUMENT_NF = 'NIFTY'
 INSTRUMENT_BNF = 'BANKNIFTY'
 INSTRUMENT_FNF = 'FINNIFTY'
 
-# margin required for MONDAY = 1470000.0
-# margin required for TUESDAY = 1439600.0
-# margin required for WEDNESDAY = 1505000.0
-# margin required for THRUSDAY = 1805000.0
-# margin required for FRIDAY = 1700000.0
+# margin required for MONDAY = 1500000.0
+# margin required for TUESDAY = 1469600.0
+# margin required for WEDNESDAY = 1550000.0
+# margin required for THRUSDAY = 1850000.0
+# margin required for FRIDAY = 1720000.0
 
 # DEFAULT SL NIFTY = 0.25
 # DEFAULT SL BANKNIFTY = 0.2
@@ -193,8 +193,8 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': '10_05_strangle_watchlist',
-        'strategy_type': 'add_to_watchlist',
+        'strategy_name': '10_05_strangle_execute',
+        'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_BNF,
         'entry_time': [10, 5, 0],
         'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
@@ -204,13 +204,13 @@ trades_list = [
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
-            'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
-            'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         },{
             'day': WEDNESDAY,
