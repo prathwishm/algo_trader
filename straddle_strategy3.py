@@ -274,13 +274,15 @@ class straddles:
 
         telegram_bot_sendtext(f"Exiting strategy {strategy_details['strategy_name']}")
 
+        symbols_to_exit = []
         for each_order in self.kite.orders():
             if each_order['order_id'] in symbols_dict.values():
                 if each_order['status'] == 'TRIGGER PENDING':
                     self.orders_obj.cancel_order(each_order['order_id'])
+                    symbols_to_exit.append(each_order['tradingsymbol'])
 
                     for each_pos in self.kite.positions()['day']:
-                        if each_pos['tradingsymbol'] in symbols_dict.keys() and each_pos['product'] == 'MIS' and each_pos['quantity'] != 0 and each_pos['tradingsymbol'] not in exited_symbols:
+                        if each_pos['tradingsymbol'] in symbols_to_exit and each_pos['quantity'] != 0 and each_pos['tradingsymbol'] not in exited_symbols:
                             exit_quantity = qty
                             exit_type = "sell" if each_pos['quantity'] > 0 else "buy"
                             if exit_quantity > 0:
