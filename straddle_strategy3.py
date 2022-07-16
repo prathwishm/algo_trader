@@ -788,7 +788,7 @@ class straddles:
 
             for each_order in self.kite.orders():
                 if each_order['order_id'] in self.sl_order_id_list:
-                    if each_order['status'] == 'TRIGGER PENDING':
+                    if each_order['status'] == 'TRIGGER PENDING' and not (self.iso_week_day == THRUSDAY and self.iso_week_day in NRML_DAYS):
                         self.orders_obj.cancel_order(each_order['order_id'])
 
             # Exit all placed orders
@@ -827,7 +827,7 @@ class straddles:
                 self.last_orders_checked_dt = dt_now
                 for each_order in self.kite.orders():
                     if each_order['order_id'] in self.hedges_dict.keys():
-                        if each_order['status'] in ['COMPLETE'] and each_order['order_id'] not in self.hedge_exit_sl_order_id_list:
+                        if each_order['status'] in ['COMPLETE', 'CANCELLED'] and each_order['order_id'] not in self.hedge_exit_sl_order_id_list:
                             #if each_order['filled_quantity'] == each_order['quantity']:
                             self.hedge_exit_sl_order_id_list.append(each_order['order_id'])
                             qty = each_order['quantity']
