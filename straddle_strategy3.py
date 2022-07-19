@@ -133,9 +133,9 @@ class straddles:
 
             strategy_name = strategy_details['strategy_name']
             strangle = False if 'strangle' not in strategy_details else strategy_details['strangle']
-            buy_hedges = False if 'hedge_multiplier' not in execution_day_details else True
+            buy_hedges = execution_day_details['use_hedge']
             target_percent = 0.25 if 'target_percent' not in execution_day_details else execution_day_details['target_percent']
-            qty = strategy_details['quantity'] * execution_day_details['quantity_multiplier']
+            qty = execution_day_details['quantity']
             current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
 
             if strangle:
@@ -148,7 +148,6 @@ class straddles:
                 instrument_symbol_pe, instrument_token_pe = self.kite_functions.get_options_symbol_and_token(strategy_details['instrument_type'], atm_strike, 'PE')
             
             if buy_hedges:
-                qty = qty * execution_day_details['hedge_multiplier']
                 hedge_symbol_ce, hedge_token_ce = self.get_hedge_symbol(instrument_symbol_ce)
                 hedge_symbol_pe, hedge_token_pe = self.get_hedge_symbol(instrument_symbol_pe)
                 hedge_ce_order_id = self.orders_obj.place_market_order(symbol = hedge_symbol_ce, buy_sell= "buy", quantity=qty, use_limit_order = False, use_mis_order = use_mis_order)
@@ -265,12 +264,8 @@ class straddles:
     def cancel_orders_and_exit_position(self, strategy_details, execution_day_details, symbols_dict):
         exited_symbols = [] #Used to prevent exiting of same symbol from a different strategy
         exited_order_ids = []
-        buy_hedges = False if 'hedge_multiplier' not in execution_day_details else True
-        qty = strategy_details['quantity'] * execution_day_details['quantity_multiplier']
+        qty = execution_day_details['quantity']
         use_mis_order = self.iso_week_day not in NRML_DAYS
-
-        if buy_hedges:
-            qty = qty * execution_day_details['hedge_multiplier']
 
         telegram_bot_sendtext(f"Exiting strategy {strategy_details['strategy_name']}")
 
@@ -376,11 +371,8 @@ class straddles:
 
             strategy_name = strategy_details['strategy_name']
             strangle = False if 'strangle' not in strategy_details else strategy_details['strangle']
-            buy_hedges = False if 'hedge_multiplier' not in execution_day_details else True
-            qty = strategy_details['quantity'] * execution_day_details['quantity_multiplier']
-
-            if buy_hedges:
-                qty = qty * execution_day_details['hedge_multiplier']
+            buy_hedges = execution_day_details['use_hedge']
+            qty = execution_day_details['quantity']
 
             if strangle:
                 self.add_itm_strangle_to_websocket(atm_strike = atm_strike, distance_from_atm = strike_distance, index = strategy_details['instrument_type'])

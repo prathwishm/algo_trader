@@ -74,8 +74,7 @@ def calculate_margin():
     for each_order in trades_list:
         for each_day in each_order['execution_days']:
             given_day = each_day['day']
-            has_hedges = False if 'hedge_multiplier' not in each_day else True
-            hedge_multiplier = 1 if 'hedge_multiplier' not in each_day else each_day['hedge_multiplier']
+            has_hedges = each_day['use_hedge']
 
             for exit_order in exitable_orders[given_day]:
                 if (exit_order['exit_time'][0] < each_order['entry_time'][0]) or (exit_order['exit_time'][0] == each_order['entry_time'][0] and exit_order['exit_time'][1] < each_order['entry_time'][1]):
@@ -84,7 +83,7 @@ def calculate_margin():
 
             margin_required = get_required_margin(each_order, has_hedges)
             lot_size = 50 if each_order['instrument_type'] == 'NIFTY' else 25
-            quantity = (each_order['quantity'] * each_day['quantity_multiplier'] * hedge_multiplier) / lot_size
+            quantity = each_day['quantity'] / lot_size
             peak_margin[given_day] = peak_margin[given_day] + (margin_required * quantity)
 
             executed_orders[given_day]['strategy_list'] += f"\n# {each_order['strategy_name']} - {each_order['entry_time'][0]}:{each_order['entry_time'][1]} - {margin_required}"
@@ -96,25 +95,25 @@ def calculate_margin():
                     'margin_required': margin_required * quantity
                 })
 
+    # print(f"# margin required for MONDAY = {peak_margin[MONDAY]}")
     # print(f"# MONDAY TRADES = {executed_orders[MONDAY]['count']} {executed_orders[MONDAY]['strategy_list']}")
-    # print('################################')
-    # print(f"# margin required for MONDAY = {peak_margin[MONDAY]}\n")
+    # print('\n################################\n')
 
+    # print(f"# margin required for TUESDAY = {peak_margin[TUESDAY]}")
     # print(f"# TUESDAY TRADES = {executed_orders[TUESDAY]['count']} {executed_orders[TUESDAY]['strategy_list']}")
-    # print('################################')
-    # print(f"# margin required for TUESDAY = {peak_margin[TUESDAY]}\n")
+    # print('\n################################\n')
     
+    # print(f"# margin required for WEDNESDAY = {peak_margin[WEDNESDAY]}")
     # print(f"# WEDNESDAY TRADES = {executed_orders[WEDNESDAY]['count']} {executed_orders[WEDNESDAY]['strategy_list']}")
-    # print('################################')
-    # print(f"# margin required for WEDNESDAY = {peak_margin[WEDNESDAY]}\n")
+    # print('\n################################\n')
 
+    # print(f"# margin required for THRUSDAY = {peak_margin[THRUSDAY]}")
     # print(f"# THRUSDAY TRADES = {executed_orders[THRUSDAY]['count']} {executed_orders[THRUSDAY]['strategy_list']}")
-    # print('################################')
-    # print(f"# margin required for THRUSDAY = {peak_margin[THRUSDAY]}\n")
+    # print('\n################################\n')
 
+    # print(f"# margin required for FRIDAY = {peak_margin[FRIDAY]}")
     # print(f"# FRIDAY TRADES = {executed_orders[FRIDAY]['count']} {executed_orders[FRIDAY]['strategy_list']}")
-    # print('################################')
-    # print(f"# margin required for FRIDAY = {peak_margin[FRIDAY]}\n")
+    # print('\n################################\n')
 
     print(f"# margin required for MONDAY = {peak_margin[MONDAY]}")
     print(f"# margin required for TUESDAY = {peak_margin[TUESDAY]}")
