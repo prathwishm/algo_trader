@@ -54,7 +54,6 @@
 # 11_45_strangle_watchlist - 11:44
 # 13_20_strangle_execute - 13:21
 
-
 ################################
 
 # margin required for MONDAY = 1645000.0

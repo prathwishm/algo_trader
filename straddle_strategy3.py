@@ -684,6 +684,7 @@ class straddles:
                 qty = 0
                 lot_pnl = 0
                 legs_hit = 0
+                instrument_type = ''
 
                 if 'ce_details' in strategy_orders_dict:
                     if strategy_orders_dict['ce_details']['buy_price'] != None:
@@ -697,6 +698,7 @@ class straddles:
                     lot_pnl = lot_pnl + (per_qty_pnl * LOT_SIZE[strategy_orders_dict['ce_details']['instrument_type']])
                     qty = strategy_orders_dict['ce_details']['qty']
                     pnl = pnl + (per_qty_pnl * qty)
+                    instrument_type = strategy_orders_dict['ce_details']['instrument_type']
                     if strategy_orders_dict['ce_details']['sl_hit']:
                         legs_hit = legs_hit + 1
 
@@ -712,6 +714,7 @@ class straddles:
                     lot_pnl = lot_pnl + (per_qty_pnl * LOT_SIZE[strategy_orders_dict['pe_details']['instrument_type']])
                     qty = strategy_orders_dict['pe_details']['qty']
                     pnl = pnl + (per_qty_pnl * qty)
+                    instrument_type = strategy_orders_dict['pe_details']['instrument_type']
                     if strategy_orders_dict['pe_details']['sl_hit']:
                         legs_hit = legs_hit + 1
 
@@ -719,6 +722,7 @@ class straddles:
                     'date':str(current_dt.date()),
                     'day': str(current_dt.strftime('%A')),
                     'strategy': strategy_name,
+                    'instrument_type': instrument_type,
                     'qty': qty,
                     'pnl': math.floor(pnl),
                     'lot_pnl': math.floor(lot_pnl),
