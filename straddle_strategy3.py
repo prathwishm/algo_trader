@@ -531,7 +531,6 @@ class straddles:
                             avg_sell_price = each_order['average_price']
                             sl_price = min(sl_price, avg_sell_price+sl_points)
                             sl_price = round(sl_price, 1)
-                            telegram_bot_sendtext(f"Placing Sl order for {strategy} - {symbol} at {sl_price}")
 
                             sl_order_id = self.orders_obj.place_sl_order_for_options(symbol=symbol, buy_sell="buy", trigger_price= sl_price, price = sl_price + 20, quantity=qty, use_mis_order = use_mis_order)
                             trade_dict = {
@@ -679,6 +678,7 @@ class straddles:
         try:
             current_dt = datetime.datetime.now(tz=pytz.timezone('Asia/Kolkata'))
             msg_str = "Running PNL :: PNL :: Legs hit"
+            pending_msg_str = "Strategies in watchlist :: symbol :: trigger price"
             for strategy_name, strategy_orders_dict in self.trades_dict.items():
                 pnl = 0
                 qty = 0
@@ -735,7 +735,13 @@ class straddles:
                     data = list(trade_dict.values())
                     self.wks_pnl.append_row(data)
 
-            telegram_bot_sendtext(msg_str)
+            for strategy_option, values_dict in self.watchlist.items():
+                pending_msg_str = pending_msg_str + f"\n{strategy_option} :: {values_dict['symbol']} :: {values_dict['trigger_price']}"
+
+            if msg_str != "Running PNL :: PNL :: Legs hit":
+                telegram_bot_sendtext(msg_str)
+            if pending_msg_str != "Strategies in watchlist :: symnol :: trigger price":
+                telegram_bot_sendtext(pending_msg_str)
 
         except Exception as e:
             logger.exception(f"Unexpected error while get_running_pnl. Error: "+str(e))

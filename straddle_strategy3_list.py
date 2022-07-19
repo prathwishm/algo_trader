@@ -9,7 +9,7 @@ OTHER_STRATEGY_LOT_MULTIPLIER = 1
 
 CORE_STRATEGY_HEDGE_MULTIPLIER = 2
 EXPIRY_HEDGE_MULTIPLIER = 3
-OTHER_STRATEGY_HEDGE_MULTIPLIER = 2
+OTHER_STRATEGY_HEDGE_MULTIPLIER = 3
 
 MONDAY = 1
 TUESDAY = 2
@@ -26,11 +26,11 @@ INSTRUMENT_NF = 'NIFTY'
 INSTRUMENT_BNF = 'BANKNIFTY'
 INSTRUMENT_FNF = 'FINNIFTY'
 
-# margin required for MONDAY = 1500000.0
-# margin required for TUESDAY = 1469600.0
-# margin required for WEDNESDAY = 1550000.0
-# margin required for THRUSDAY = 1850000.0
-# margin required for FRIDAY = 1720000.0
+# margin required for MONDAY = 1645000.0
+# margin required for TUESDAY = 1770000.0
+# margin required for WEDNESDAY = 1710000.0
+# margin required for THRUSDAY = 2070000.0
+# margin required for FRIDAY = 1950000.0
 
 # DEFAULT SL NIFTY = 0.25
 # DEFAULT SL BANKNIFTY = 0.2
@@ -137,6 +137,7 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
+            'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
     },
@@ -153,12 +154,6 @@ trades_list = [
         'execution_days': [{
             'day': MONDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 8, 4],
-            'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
-            'quantity_multiplier': 1
-        },{
-            'day': TUESDAY,
-            'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
             'hedge_multiplier': OTHER_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
@@ -181,14 +176,22 @@ trades_list = [
         'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_NF,
         'entry_time': [9, 39, 52],
-        'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
+        'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER,
         'sl_percent': 0.35,
         'strangle': True,
         'strike_distance': 100,
-        'execution_days': [{
+        'execution_days': [
+            {
+            'day': TUESDAY,
+            'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
+            'exit_time': [15, 8, 4],
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity_multiplier': 1
+        },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
     },
@@ -252,7 +255,8 @@ trades_list = [
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
             'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
-            'quantity_multiplier': 1
+            # Updated quantity multiplier to use margin
+            'quantity_multiplier': 2
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
@@ -269,6 +273,7 @@ trades_list = [
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
+            'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
     },
@@ -441,22 +446,5 @@ trades_list = [
             'hedge_multiplier': CORE_STRATEGY_HEDGE_MULTIPLIER,
             'quantity_multiplier': 1
         }],
-    },
-    {
-        # New strategy
-        'strategy_name': '13_25_FNF_strangle_watchlist',
-        'strategy_type': 'add_to_watchlist',
-        'instrument_type': INSTRUMENT_FNF,
-        'entry_time': [13, 24, 0],
-        'quantity': FNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER,
-        'sl_percent': 0.25,
-        'strangle': True,
-        'execution_days': [{
-            'day': TUESDAY,
-            'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 18, 4],
-            'hedge_multiplier': EXPIRY_HEDGE_MULTIPLIER,
-            'quantity_multiplier': 1
-        }],
-    },
+    }
 ]

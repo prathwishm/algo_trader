@@ -102,7 +102,7 @@ def calculate_margin():
     # print(f"# THRUSDAY TRADES = {executed_orders[THRUSDAY]['count']} {executed_orders[THRUSDAY]['strategy_list']}\n")
     # print(f"# FRIDAY TRADES = {executed_orders[FRIDAY]['count']} {executed_orders[FRIDAY]['strategy_list']}\n")
 
-    print('\n################################\n')
+    print('################################\n')
 
     print(f"# margin required for MONDAY = {peak_margin[MONDAY]}")
     print(f"# margin required for TUESDAY = {peak_margin[TUESDAY]}")
