@@ -36,7 +36,7 @@ INSTRUMENT_FNF = 'FINNIFTY'
 
 trades_list = [
     {
-        'strategy_name': '9_16_strangle_watchlist',
+        'strategy_name': 'NF_09_16_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': INSTRUMENT_NF,
         'entry_time': [9, 16, 0],
@@ -62,13 +62,12 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': 'bnf_9_16_expiry_strangle_execute',
+        'strategy_name': 'BNF_09_16_expiry_straddle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_BNF,
         'entry_time': [9, 16, 0],
-        'sl_percent': 0.25,
-        'strangle': True,
-        'strike_distance': 100,
+        'sl_percent': 0.2,
+        'strangle': False,
         'execution_days': [{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
@@ -84,12 +83,13 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': 'nf_9_16_expiry_strangle_execute',
+        'strategy_name': 'NF_09_16_expiry_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_NF,
         'entry_time': [9, 16, 0],
-        'sl_percent': 0.2,
-        'strangle': False,
+        'sl_percent': 0.25,
+        'strangle': True,
+        'strike_distance': 100,
         'execution_days': [{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
@@ -99,7 +99,7 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': '9_20_straddle_watchlist',
+        'strategy_name': 'BNF_09_20_straddle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': INSTRUMENT_BNF,
         'entry_time': [9, 19, 54],
@@ -138,7 +138,7 @@ trades_list = [
     },
     {
         # Updated from execute to watchlist
-        'strategy_name': 'nf_9_40_strangle_watchlist',
+        'strategy_name': 'NF_09_40_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': INSTRUMENT_NF,
         'entry_time': [9, 39, 52],
@@ -146,12 +146,6 @@ trades_list = [
         'strangle': True,
         'strike_distance': 100,
         'execution_days': [{
-            'day': MONDAY,
-            'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
-            'exit_time': [15, 8, 4],
-            'use_hedge': True,
-            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
-        },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
@@ -166,15 +160,20 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': 'nf_9_40_strangle_execute',
+        'strategy_name': 'NF_09_40_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_NF,
         'entry_time': [9, 39, 52],
         'sl_percent': 0.35,
         'strangle': True,
         'strike_distance': 100,
-        'execution_days': [
-            {
+        'execution_days': [{
+            'day': MONDAY,
+            'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
+            'exit_time': [15, 8, 4],
+            'use_hedge': True,
+            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
+        },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
@@ -189,7 +188,7 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': '10_05_strangle_execute',
+        'strategy_name': 'BNF_10_05_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_BNF,
         'entry_time': [10, 5, 0],
@@ -228,7 +227,7 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': 'nf_10_45_strangle_execute',
+        'strategy_name': 'NF_10_45_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_NF,
         'entry_time': [10, 44, 52],
@@ -241,7 +240,7 @@ trades_list = [
             'exit_time': [15, 10, 4],
             'use_hedge': True,
             # Updated quantity multiplier & lot type to match margin
-            'quantity': 3 * NF_LOT_SIZE * OTHER_STRATEGY_WITH_HEDGE_LOTS,
+            'quantity': 4 * NF_LOT_SIZE * OTHER_LTD_QTY_WITH_HEDGE_LOTS,
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
@@ -270,7 +269,7 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': '11_15_strangle_watchlist',
+        'strategy_name': 'BNF_11_15_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': INSTRUMENT_BNF,
         'entry_time': [11, 15, 0],
@@ -310,7 +309,7 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': 'nf_11_30_strangle_execute',
+        'strategy_name': 'NF_11_30_strangle_execute',
         'strategy_type': 'short_straddle',
         'instrument_type': INSTRUMENT_NF,
         'entry_time': [11, 29, 52],
@@ -350,7 +349,7 @@ trades_list = [
         }],
     },
     {
-        'strategy_name': '11_45_strangle_watchlist',
+        'strategy_name': 'BNF_11_45_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': INSTRUMENT_BNF,
         'entry_time': [11, 44, 54],
@@ -390,7 +389,7 @@ trades_list = [
     },
     {
         # Core staregy downgraded to avoid margin shortfall
-        'strategy_name': '13_20_strangle_watchlist',
+        'strategy_name': 'BNF_13_20_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': INSTRUMENT_BNF,
         'entry_time': [13, 20, 0],
