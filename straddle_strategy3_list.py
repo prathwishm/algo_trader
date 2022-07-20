@@ -3,13 +3,12 @@ NF_LOT_SIZE = 50
 BNF_LOT_SIZE = 25
 FNF_LOT_SIZE = 40
 
-CORE_STRATEGY_LOT_MULTIPLIER = 2
-EXPIRY_STRATEGY_LOT_MULTIPLIER = 1
-OTHER_STRATEGY_LOT_MULTIPLIER = 1
+CORE_STRATEGY_WITH_HEDGE_LOTS = 4 # QTY - 2 HEDGE - 2
+CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS = 6 # QTY - 2 HEDGE - 3
 
-CORE_STRATEGY_HEDGE_MULTIPLIER = 2
-EXPIRY_HEDGE_MULTIPLIER = 3
-OTHER_STRATEGY_HEDGE_MULTIPLIER = 3
+OTHER_STRATEGY_WITH_HEDGE_LOTS = 3 # QTY - 1 HEDGE - 3
+OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS = 3 # QTY - 1 HEDGE - 3
+OTHER_LTD_QTY_WITH_HEDGE_LOTS = 2 # QTY - 1 HEDGE - 2
 
 MONDAY = 1
 TUESDAY = 2
@@ -28,9 +27,9 @@ INSTRUMENT_FNF = 'FINNIFTY'
 
 # margin required for MONDAY = 1645000.0
 # margin required for TUESDAY = 1770000.0
-# margin required for WEDNESDAY = 1710000.0
+# margin required for WEDNESDAY = 1755000.0
 # margin required for THRUSDAY = 2070000.0
-# margin required for FRIDAY = 1950000.0
+# margin required for FRIDAY = 1860000.0
 
 # DEFAULT SL NIFTY = 0.25
 # DEFAULT SL BANKNIFTY = 0.2
@@ -47,19 +46,19 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 15, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         }, {
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 15, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         }, {
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 45, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -75,13 +74,13 @@ trades_list = [
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [11, 44, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         }, {
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [11, 44, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -96,7 +95,7 @@ trades_list = [
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [12, 44, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -110,31 +109,31 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [14, 54, 54],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -151,19 +150,19 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 48, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -180,13 +179,13 @@ trades_list = [
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 8, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -201,30 +200,30 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_LTD_QTY_WITH_HEDGE_LOTS,
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_LTD_QTY_WITH_HEDGE_LOTS,
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 5, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 45, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
-            'use_hedge': False,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
+            'use_hedge': True,
+            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_WITH_HEDGE_LOTS,
             'exit_time': [15, 5, 4],
         }],
     },
@@ -242,32 +241,32 @@ trades_list = [
             'exit_time': [15, 10, 4],
             'use_hedge': True,
             # Updated quantity multiplier to use margin
-            'quantity': 2 * NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': 2 * NF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
             'use_hedge': True,
             # Updated quantity multiplier to use margin
-            'quantity': 2 * NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': 2 * NF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 40, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -282,31 +281,31 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
             'use_hedge': True,
-            'quantity': 2 * BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': 2 * BNF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
-            'use_hedge': False,
-            'quantity': 2 * BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER,
+            'use_hedge': True,
+            'quantity': 2 * BNF_LOT_SIZE * OTHER_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -322,31 +321,31 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 17, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 17, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 17, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 47, 4],
             'use_hedge': True,
-            'quantity': NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 17, 4],
             'use_hedge': True,
-            'quantity': 2 * NF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * OTHER_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': 2 * NF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -354,7 +353,6 @@ trades_list = [
         'strategy_type': 'add_to_watchlist',
         'instrument_type': INSTRUMENT_BNF,
         'entry_time': [11, 44, 54],
-        'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER,
         'sl_percent': 0.20,
         'strangle': True,
         'execution_days': [{
@@ -362,34 +360,35 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 12, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 12, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 12, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 42, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 12, 4],
-            'use_hedge': False,
-            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_LOT_MULTIPLIER,
+            'use_hedge': True,
+            'quantity': BNF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
+        # Core staregy downgraded to avoid margin shortfall
         'strategy_name': '13_20_strangle_watchlist',
         'strategy_type': 'add_to_watchlist',
         'instrument_type': INSTRUMENT_BNF,
@@ -401,19 +400,19 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_LTD_QTY_WITH_HEDGE_LOTS,
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_LTD_QTY_WITH_HEDGE_LOTS,
         },{
             'day': THRUSDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 48, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * EXPIRY_STRATEGY_LOT_MULTIPLIER * EXPIRY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_EXPIRY_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {
@@ -429,13 +428,13 @@ trades_list = [
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_LTD_QTY_WITH_HEDGE_LOTS,
         },{
             'day': FRIDAY,
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 18, 4],
             'use_hedge': True,
-            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_LOT_MULTIPLIER * CORE_STRATEGY_HEDGE_MULTIPLIER,
+            'quantity': BNF_LOT_SIZE * OTHER_LTD_QTY_WITH_HEDGE_LOTS,
         }],
     }
 ]

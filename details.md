@@ -25,7 +25,7 @@
 
 ################################
 
-# margin required for WEDNESDAY = 1710000.0
+# margin required for WEDNESDAY = 1755000.0
 # WEDNESDAY TRADES = 10 
 # 9_16_strangle_watchlist - 9:16 - 40000
 # bnf_9_16_expiry_strangle_execute - 9:16 - 60000
@@ -71,6 +71,6 @@
 
 # margin required for MONDAY = 1645000.0
 # margin required for TUESDAY = 1770000.0
-# margin required for WEDNESDAY = 1710000.0
+# margin required for WEDNESDAY = 1755000.0
 # margin required for THRUSDAY = 2070000.0
 # margin required for FRIDAY = 1950000.0
