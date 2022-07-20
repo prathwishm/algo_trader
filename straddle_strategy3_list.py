@@ -3,7 +3,7 @@ NF_LOT_SIZE = 50
 BNF_LOT_SIZE = 25
 FNF_LOT_SIZE = 40
 
-CORE_STRATEGY_WITH_HEDGE_LOTS = 4 # QTY - 2 HEDGE - 2
+CORE_STRATEGY_WITH_HEDGE_LOTS = 5 # QTY - 2 HEDGE - 2
 CORE_EXPIRY_STRATEGY_WITH_HEDGE_LOTS = 6 # QTY - 2 HEDGE - 3
 
 OTHER_STRATEGY_WITH_HEDGE_LOTS = 3 # QTY - 1 HEDGE - 3
@@ -25,11 +25,11 @@ INSTRUMENT_NF = 'NIFTY'
 INSTRUMENT_BNF = 'BANKNIFTY'
 INSTRUMENT_FNF = 'FINNIFTY'
 
-# margin required for MONDAY = 1645000.0
-# margin required for TUESDAY = 1770000.0
-# margin required for WEDNESDAY = 1755000.0
+# margin required for MONDAY = 1835000.0
+# margin required for TUESDAY = 1800000.0
+# margin required for WEDNESDAY = 1800000.0
 # margin required for THRUSDAY = 2070000.0
-# margin required for FRIDAY = 1860000.0
+# margin required for FRIDAY = 1890000.0
 
 # DEFAULT SL NIFTY = 0.25
 # DEFAULT SL BANKNIFTY = 0.2
@@ -240,15 +240,15 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
             'use_hedge': True,
-            # Updated quantity multiplier to use margin
-            'quantity': 2 * NF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
+            # Updated quantity multiplier & lot type to match margin
+            'quantity': 3 * NF_LOT_SIZE * OTHER_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': TUESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 10, 4],
             'use_hedge': True,
-            # Updated quantity multiplier to use margin
-            'quantity': 2 * NF_LOT_SIZE * CORE_STRATEGY_WITH_HEDGE_LOTS,
+            # Updated quantity multiplier & lot type to match margin
+            'quantity': 2 * NF_LOT_SIZE * OTHER_STRATEGY_WITH_HEDGE_LOTS,
         },{
             'day': WEDNESDAY,
             'target_percent': NEAR_TO_EXPIRY_TARGET_PRICE,
@@ -305,7 +305,8 @@ trades_list = [
             'target_percent': FAR_TO_EXPIRY_TARGET_PRICE,
             'exit_time': [15, 0, 4],
             'use_hedge': True,
-            'quantity': 2 * BNF_LOT_SIZE * OTHER_STRATEGY_WITH_HEDGE_LOTS,
+            # removed quantity multiplier of 1.5 as backtest was not found great for Friday
+            'quantity': BNF_LOT_SIZE * OTHER_STRATEGY_WITH_HEDGE_LOTS,
         }],
     },
     {

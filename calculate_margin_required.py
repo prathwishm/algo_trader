@@ -1,3 +1,4 @@
+from math import floor
 from straddle_strategy3_list import trades_list, INSTRUMENT_BNF, INSTRUMENT_FNF, INSTRUMENT_NF
 
 MONDAY = 1
@@ -86,7 +87,7 @@ def calculate_margin():
             quantity = each_day['quantity'] / lot_size
             peak_margin[given_day] = peak_margin[given_day] + (margin_required * quantity)
 
-            executed_orders[given_day]['strategy_list'] += f"\n# {each_order['strategy_name']} - {each_order['entry_time'][0]}:{each_order['entry_time'][1]} - {margin_required}"
+            executed_orders[given_day]['strategy_list'] += f"\n# {each_order['strategy_name']} - {each_order['entry_time'][0]}:{each_order['entry_time'][1]} - {floor(margin_required * quantity)} - {floor(peak_margin[given_day])}"
             executed_orders[given_day]['count'] += + 1
 
             if 'exit_time' in each_day:
@@ -119,6 +120,6 @@ def calculate_margin():
     print(f"# margin required for TUESDAY = {peak_margin[TUESDAY]}")
     print(f"# margin required for WEDNESDAY = {peak_margin[WEDNESDAY]}")
     print(f"# margin required for THRUSDAY = {peak_margin[THRUSDAY]}")
-    print(f"# margin required for FRIDAY = {peak_margin[FRIDAY]}")
+    print(f"# margin required for FRIDAY = {peak_margin[FRIDAY]}\n")
 
 calculate_margin()
