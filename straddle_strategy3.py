@@ -714,7 +714,6 @@ class straddles:
                     'date':str(current_dt.date()),
                     'day': str(current_dt.strftime('%A')),
                     'strategy': strategy_name,
-                    'instrument_type': instrument_type,
                     'qty': qty,
                     'pnl': math.floor(pnl),
                     'lot_pnl': math.floor(lot_pnl),
@@ -800,7 +799,7 @@ class straddles:
                     execution_day_details = execution_day_details[0]
                     strategy_name = trades_item['strategy_name']
 
-                    if strategy_name not in self.trades_exited:
+                    if strategy_name not in self.trades_exited and not (self.iso_week_day == THRUSDAY and self.iso_week_day in NRML_DAYS):
                         self.trades_exited.append(strategy_name)
                         self.cancel_orders_and_exit_position(trades_item, execution_day_details, self.trades_dict[strategy_name])
 
